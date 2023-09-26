@@ -3,6 +3,7 @@ package com.odinbook.validation;
 import com.odinbook.model.Account;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,6 +32,7 @@ public class AccountForm {
     public Account getAccount(){
         Account account = new Account();
 
+        account.setId(this.id);
         account.setFullName(this.fullName);
         account.setUserName(this.userName);
         account.setEmail(this.email);

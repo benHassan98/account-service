@@ -31,7 +31,7 @@ public class Account {
     private String picture;
 
     @Transient
-    private MultipartFile image;
+    private MultipartFile image = null;
     @Column(name = "fullname",nullable = false)
     private String fullName;
     @Column(name = "username",nullable = false)
@@ -109,8 +109,9 @@ public class Account {
     public Date getCreatedDate() {
         return createdDate;
     }
-    public List<Account> getFriendList(){
-        return this.friendList;
+
+    public List<Account> getFriendList() {
+        return List.copyOf(this.friendList);
     }
 
     public void addFriend(Account addedAccount){

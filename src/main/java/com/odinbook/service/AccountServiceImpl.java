@@ -24,18 +24,18 @@ import static java.util.stream.Collectors.toList;
 public class AccountServiceImpl implements AccountService{
 
     private final AccountRepository accountRepository;
+    private final ImageService imageService;
     private final PasswordEncoder passwordEncoder;
     private final ElasticsearchClient elasticsearchClient;
 
-
-    @Value("${spring.cloud.azure.storage.connection-string}")
-    private String connectStr;
     @Autowired
     public AccountServiceImpl(AccountRepository accountRepository,
+                              ImageService imageService,
                               PasswordEncoder passwordEncoder,
                               ElasticsearchClient elasticsearchClient
                               ) {
         this.accountRepository = accountRepository;
+        this.imageService = imageService;
         this.passwordEncoder = passwordEncoder;
         this.elasticsearchClient = elasticsearchClient;
 
@@ -172,14 +172,9 @@ public class AccountServiceImpl implements AccountService{
                     Account.class
             ).hits().hits().stream().map(Hit::source).filter(Objects::nonNull).peek(account -> {
 
-                byte[] blobContent = new BlobServiceClientBuilder()
-                        .connectionString(connectStr)
-                        .buildClient()
-                        .getBlobContainerClient("images")
-                        .getBlobClient(account.getPicture())
-                        .downloadContent().toBytes();
-
-                account.setPicture(Base64.encode(blobContent).toString());
+                account.setPicture(
+                                Base64.encode(imageService.findBlob(account.getPicture())).toString()
+                        );
             }).toList();
 
         }
