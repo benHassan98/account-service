@@ -2,6 +2,10 @@ package com.odinbook.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.azure.messaging.webpubsub.WebPubSubServiceClient;
+import com.azure.messaging.webpubsub.WebPubSubServiceClientBuilder;
+import com.azure.messaging.webpubsub.models.GetClientAccessTokenOptions;
+import com.azure.messaging.webpubsub.models.WebPubSubClientAccessToken;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.odinbook.model.Account;
 import com.odinbook.repository.AccountRepository;
@@ -16,7 +20,9 @@ import org.springframework.util.ObjectUtils;
 
 import javax.swing.text.html.Option;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.*;
+import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
 
@@ -25,17 +31,20 @@ public class AccountServiceImpl implements AccountService{
 
     private final AccountRepository accountRepository;
     private final ImageService imageService;
+    private final WebPubSubService webPubSubService;
     private final PasswordEncoder passwordEncoder;
     private final ElasticsearchClient elasticsearchClient;
 
     @Autowired
     public AccountServiceImpl(AccountRepository accountRepository,
                               ImageService imageService,
+                              WebPubSubService webPubSubService,
                               PasswordEncoder passwordEncoder,
                               ElasticsearchClient elasticsearchClient
                               ) {
         this.accountRepository = accountRepository;
         this.imageService = imageService;
+        this.webPubSubService = webPubSubService;
         this.passwordEncoder = passwordEncoder;
         this.elasticsearchClient = elasticsearchClient;
 
@@ -183,6 +192,30 @@ public class AccountServiceImpl implements AccountService{
         }
 
         return Collections.emptyList();
+
+    }
+
+    @Override
+    public String getClientAccessToken(Long accountId) {
+        GetClientAccessTokenOptions options = new GetClientAccessTokenOptions();
+        options.setUserId(accountId.toString());
+//        WebPubSubClientAccessToken token = service.getClientAccessToken(
+//                new GetClientAccessTokenOptions()
+//                        .setUserId("1")
+//        );
+
+
+
+        try{
+            return webPubSubService.createClientAndGetToken(options,
+                    this::searchAccountsByUserNameOrEmail)
+                    .getUrl();
+        }
+        catch (URISyntaxException exception){
+            exception.printStackTrace();
+            return null;
+        }
+
 
     }
 

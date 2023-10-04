@@ -21,4 +21,5 @@ public interface AccountService {
     public void follow(Long followerId,Long followeeId);
     public void unFollow(Long followerId,Long followeeId);
     public List<Account> searchAccountsByUserNameOrEmail(String searchText);
+    public String getClientAccessToken(Long accountId);
 }

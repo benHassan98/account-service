@@ -24,7 +24,7 @@ public class AccountController {
         this.accountService = accountService;
     }
     @PostMapping("/create")
-    public ResponseEntity<?> createAccount(@Valid @RequestBody AccountForm accountForm,
+    public ResponseEntity<?> createAccount(@Valid @ModelAttribute AccountForm accountForm,
                                            BindingResult bindingResult){
 
         if(bindingResult.hasErrors()){
@@ -49,6 +49,10 @@ public class AccountController {
         return accountService.findAccountById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+    @PostMapping("/token")
+    public String getPubSubToken(@RequestBody Long accountId){
+        return accountService.getClientAccessToken(accountId);
     }
 
 //    @MessageMapping("/sendFriendRequest")
@@ -106,14 +110,9 @@ public class AccountController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateAccount(@Valid @RequestBody AccountForm accountForm,
-                                           BindingResult bindingResult){
+    public ResponseEntity<?> updateAccount(@ModelAttribute Account account){
 
-        if(bindingResult.hasErrors()){
-            return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
-        }
-
-        return accountService.updateAccount(accountForm.getAccount())
+        return accountService.updateAccount(account)
                 .map(ResponseEntity::ok)
                 .orElseGet(()->ResponseEntity.badRequest().build());
     }

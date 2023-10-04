@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
 
-@UniqueEmail
+
 public class AccountForm {
 
     private Long id;
@@ -19,6 +19,7 @@ public class AccountForm {
     private String userName;
     @NotEmpty
     @Email
+    @UniqueEmail
     private String email;
     @NotEmpty
     @Size(min = 6,max = 40)
