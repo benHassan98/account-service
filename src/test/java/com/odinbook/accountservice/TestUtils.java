@@ -1,7 +1,7 @@
-package com.odinbook;
+package com.odinbook.accountservice;
 
-import com.odinbook.model.Account;
-import com.odinbook.repository.AccountRepository;
+import com.odinbook.accountservice.model.Account;
+import com.odinbook.accountservice.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;

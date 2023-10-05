@@ -1,6 +1,6 @@
-package com.odinbook.repository;
+package com.odinbook.accountservice.repository;
 
-import com.odinbook.model.Account;
+import com.odinbook.accountservice.model.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

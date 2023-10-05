@@ -1,4 +1,4 @@
-package com.odinbook.validation;
+package com.odinbook.accountservice.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

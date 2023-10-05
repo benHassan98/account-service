@@ -1,4 +1,4 @@
-package com.odinbook.service;
+package com.odinbook.accountservice.service;
 
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import org.springframework.beans.factory.annotation.Value;

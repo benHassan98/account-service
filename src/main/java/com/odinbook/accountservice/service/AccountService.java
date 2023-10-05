@@ -1,10 +1,9 @@
-package com.odinbook.service;
+package com.odinbook.accountservice.service;
 
 import com.azure.messaging.webpubsub.WebPubSubServiceClient;
-import com.odinbook.model.Account;
-import com.odinbook.record.AddFriendRecord;
+import com.odinbook.accountservice.model.Account;
+import com.odinbook.accountservice.record.AddFriendRecord;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 

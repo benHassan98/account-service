@@ -1,11 +1,11 @@
-package com.odinbook;
+package com.odinbook.accountservice;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.odinbook.model.Account;
-import com.odinbook.repository.AccountRepository;
-import com.odinbook.service.ImageServiceImpl;
-import com.odinbook.validation.AccountForm;
+import com.odinbook.accountservice.model.Account;
+import com.odinbook.accountservice.repository.AccountRepository;
+import com.odinbook.accountservice.service.ImageServiceImpl;
+import com.odinbook.accountservice.validation.AccountForm;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Profile;
 
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;

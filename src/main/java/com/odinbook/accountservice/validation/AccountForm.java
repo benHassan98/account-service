@@ -1,9 +1,8 @@
-package com.odinbook.validation;
+package com.odinbook.accountservice.validation;
 
-import com.odinbook.model.Account;
+import com.odinbook.accountservice.model.Account;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
 

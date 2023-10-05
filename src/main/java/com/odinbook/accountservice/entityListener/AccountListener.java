@@ -1,16 +1,11 @@
-package com.odinbook.entityListener;
+package com.odinbook.accountservice.entityListener;
 
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.nimbusds.jose.crypto.impl.PasswordBasedCryptoProvider;
 import com.nimbusds.jose.util.Base64;
-import com.odinbook.model.Account;
-import com.odinbook.service.ImageService;
+import com.odinbook.accountservice.model.Account;
+import com.odinbook.accountservice.service.ImageService;
 import jakarta.persistence.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Objects;

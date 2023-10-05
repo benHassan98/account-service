@@ -1,4 +1,4 @@
-package com.odinbook.config;
+package com.odinbook.accountservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

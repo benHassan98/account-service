@@ -1,33 +1,24 @@
-package com.odinbook.service;
+package com.odinbook.accountservice.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.azure.messaging.webpubsub.WebPubSubServiceClient;
 import com.azure.messaging.webpubsub.WebPubSubServiceClientBuilder;
 import com.azure.messaging.webpubsub.models.GetClientAccessTokenOptions;
-import com.azure.messaging.webpubsub.models.WebPubSubClientAccessToken;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.odinbook.model.Account;
-import com.odinbook.record.AddFriendRecord;
-import com.odinbook.repository.AccountRepository;
+import com.odinbook.accountservice.repository.AccountRepository;
+import com.odinbook.accountservice.model.Account;
+import com.odinbook.accountservice.record.AddFriendRecord;
 import com.nimbusds.jose.util.Base64;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
-import javax.swing.text.html.Option;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.*;
-import java.util.function.Function;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 public class AccountServiceImpl implements AccountService{

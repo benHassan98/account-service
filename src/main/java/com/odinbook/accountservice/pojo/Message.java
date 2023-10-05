@@ -1,4 +1,4 @@
-package com.odinbook.pojo;
+package com.odinbook.accountservice.pojo;
 
 public class Message {
     private Long id;

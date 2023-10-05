@@ -1,21 +1,17 @@
-package com.odinbook.controller;
+package com.odinbook.accountservice.controller;
 
 import com.azure.messaging.webpubsub.WebPubSubServiceClient;
-import com.odinbook.model.Account;
-import com.odinbook.service.AccountService;
-import com.odinbook.validation.AccountForm;
+import com.odinbook.accountservice.service.AccountService;
+import com.odinbook.accountservice.validation.AccountForm;
+import com.odinbook.accountservice.model.Account;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 public class AccountController {

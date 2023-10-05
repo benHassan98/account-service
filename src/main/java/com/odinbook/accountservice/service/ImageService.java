@@ -1,4 +1,4 @@
-package com.odinbook.service;
+package com.odinbook.accountservice.service;
 
 import org.springframework.web.multipart.MultipartFile;
 

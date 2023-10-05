@@ -1,4 +1,4 @@
-package com.odinbook.config;
+package com.odinbook.accountservice.config;
 
 
 import com.azure.messaging.webpubsub.WebPubSubServiceClient;
@@ -7,13 +7,12 @@ import com.azure.messaging.webpubsub.models.WebPubSubClientAccessToken;
 import com.azure.messaging.webpubsub.models.WebPubSubContentType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.odinbook.pojo.Message;
-import com.odinbook.service.AccountService;
+import com.odinbook.accountservice.service.AccountService;
+import com.odinbook.accountservice.pojo.Message;
 import jakarta.annotation.PostConstruct;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
