@@ -1,5 +1,6 @@
 package com.odinbook.controller;
 
+import com.azure.messaging.webpubsub.WebPubSubServiceClient;
 import com.odinbook.model.Account;
 import com.odinbook.service.AccountService;
 import com.odinbook.validation.AccountForm;
@@ -50,21 +51,6 @@ public class AccountController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-    @PostMapping("/token")
-    public String getPubSubToken(@RequestBody Long accountId){
-        return accountService.getClientAccessToken(accountId);
-    }
-
-//    @MessageMapping("/sendFriendRequest")
-//    public void sendFriendRequest(FriendNotification friendNotification){
-//        notificationService.sendFriendRequest(friendNotification);
-//    }
-
-//    @MessageMapping("/acceptFriendRequest")
-//    public void acceptFriendRequest(FriendNotification friendNotification){
-//        notificationService.acceptFriendRequest(friendNotification);
-//        accountService.addFriend(friendNotification);
-//    }
 
     @PostMapping("/follow")
     public void follow(@RequestBody Map<String,Long> params){
@@ -82,21 +68,6 @@ public class AccountController {
 
     }
 
-//    TODO
-//    With web pubsub
-
-//    @MessageMapping("/account/search")
-//    public void searchAccountsByUserNameOrEmail(Map<String,String> params){
-//        String searchText = params.get("searchText");
-//        String accountId = params.get("accountId");
-//        try{
-//            List<Account> accountList =  accountService.searchAccountsByUserNameOrEmail(searchText);
-//            simpMessagingTemplate.convertAndSend("account/search/"+accountId,accountList);
-//        }
-//        catch (IOException ioException){
-//            throw new RuntimeException(ioException);
-//        }
-//    }
     @GetMapping("email/{email}")
     public ResponseEntity<?> findByEmail(@PathVariable String email){
         return accountService.findAccountByEmail(email)
@@ -133,6 +104,13 @@ public class AccountController {
 
         return ResponseEntity.ok().build();
     }
-
+    @GetMapping("/clientToken/{accountId}")
+    public String getClientToken(@PathVariable Long accountId){
+        return accountService.getClientAccessToken(accountId);
+    }
+    @GetMapping("/serviceClient")
+    public WebPubSubServiceClient getServiceClient(){
+        return accountService.getServiceClient();
+    }
 
 }

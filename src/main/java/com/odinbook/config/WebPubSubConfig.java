@@ -1,16 +1,18 @@
-package com.odinbook.component;
+package com.odinbook.config;
 
 
-import com.azure.core.http.rest.RequestOptions;
 import com.azure.messaging.webpubsub.WebPubSubServiceClient;
-import com.azure.messaging.webpubsub.WebPubSubServiceClientBuilder;
 import com.azure.messaging.webpubsub.models.GetClientAccessTokenOptions;
 import com.azure.messaging.webpubsub.models.WebPubSubClientAccessToken;
+import com.azure.messaging.webpubsub.models.WebPubSubContentType;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odinbook.pojo.Message;
+import com.odinbook.service.AccountService;
 import jakarta.annotation.PostConstruct;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -18,35 +20,36 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 @Component
-@Profile(value = "prod")
 public class WebPubSubConfig {
 
-//    @Autowired
-//    private AccountService accountService;
-
-    @Value("${spring.cloud.azure.pubsub.connection-string}")
-    private String connectStr;
+    @Autowired
+    private AccountService accountService;
 
     @PostConstruct
     public void init() throws URISyntaxException {
-        System.out.println("Hello from WebSocket");
-        WebPubSubServiceClient service = new WebPubSubServiceClientBuilder()
-                .connectionString(connectStr)
-                .hub("accountSearch")
-                .buildClient();
 
+        WebPubSubServiceClient service = accountService.getServiceClient();
 
-        WebPubSubClientAccessToken token = service.getClientAccessToken(new GetClientAccessTokenOptions());
-
-
-
-
+        WebPubSubClientAccessToken token = service.getClientAccessToken(
+                new GetClientAccessTokenOptions()
+                        .setUserId("0")
+        );
 
         WebSocketClient webSocketClient = new WebSocketClient(new URI(token.getUrl())) {
             @Override
-            public void onMessage(String message) {
-                System.out.printf("Message received: %s%n", message);
-
+            public void onMessage(String jsonString) {
+                try {
+                    Message message = new ObjectMapper().readValue(jsonString,Message.class);
+                    service.sendToUser(
+                            message.getId().toString(),
+                            accountService
+                                    .searchAccountsByUserNameOrEmail(message.getContent())
+                                    .toString(),
+                            WebPubSubContentType.APPLICATION_JSON
+                    );
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
 
             }
 

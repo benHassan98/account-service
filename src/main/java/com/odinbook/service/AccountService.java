@@ -1,6 +1,8 @@
 package com.odinbook.service;
 
+import com.azure.messaging.webpubsub.WebPubSubServiceClient;
 import com.odinbook.model.Account;
+import com.odinbook.record.AddFriendRecord;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,7 +15,7 @@ public interface AccountService {
     public Optional<Account> findAccountByEmail(String email);
     public List<Account> findAccountByUserName(String userName);
     public Optional<Account> updateAccount(Account account);
-    public void addFriend(Long addingId, Long addedId);
+    public void addFriend(AddFriendRecord addFriendRecord);
     public Boolean isEmailUnique(String email);
     public void resetPassword(String newPassword, String email);
     public void verifyAccount(String email);
@@ -21,5 +23,7 @@ public interface AccountService {
     public void follow(Long followerId,Long followeeId);
     public void unFollow(Long followerId,Long followeeId);
     public List<Account> searchAccountsByUserNameOrEmail(String searchText);
+    public WebPubSubServiceClient getServiceClient();
     public String getClientAccessToken(Long accountId);
+
 }

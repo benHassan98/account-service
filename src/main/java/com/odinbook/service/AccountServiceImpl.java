@@ -8,11 +8,14 @@ import com.azure.messaging.webpubsub.models.GetClientAccessTokenOptions;
 import com.azure.messaging.webpubsub.models.WebPubSubClientAccessToken;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.odinbook.model.Account;
+import com.odinbook.record.AddFriendRecord;
 import com.odinbook.repository.AccountRepository;
 import com.nimbusds.jose.util.Base64;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,23 +31,22 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 public class AccountServiceImpl implements AccountService{
+    @Value("${spring.cloud.azure.pubsub.connection-string}")
+    private String webPubSubConnectStr;
 
     private final AccountRepository accountRepository;
     private final ImageService imageService;
-    private final WebPubSubService webPubSubService;
     private final PasswordEncoder passwordEncoder;
     private final ElasticsearchClient elasticsearchClient;
 
     @Autowired
     public AccountServiceImpl(AccountRepository accountRepository,
                               ImageService imageService,
-                              WebPubSubService webPubSubService,
                               PasswordEncoder passwordEncoder,
                               ElasticsearchClient elasticsearchClient
                               ) {
         this.accountRepository = accountRepository;
         this.imageService = imageService;
-        this.webPubSubService = webPubSubService;
         this.passwordEncoder = passwordEncoder;
         this.elasticsearchClient = elasticsearchClient;
 
@@ -101,16 +103,19 @@ public class AccountServiceImpl implements AccountService{
                 });
     }
 
+
+
+    @ServiceActivator(inputChannel = "addFriendRequest")
     @Override
-    public void addFriend(Long addingId, Long addedId) {
+    public void addFriend(@Payload AddFriendRecord addFriendRecord) {
 
         Account addingAccount,
                 addedAccount;
 
         try{
-            addingAccount = findAccountById(addingId)
+            addingAccount = findAccountById(addFriendRecord.addingId())
                     .orElseThrow(NullPointerException::new);
-            addedAccount =  findAccountById(addedId)
+            addedAccount =  findAccountById(addFriendRecord.addedId())
                     .orElseThrow(NullPointerException::new);
         }
         catch (NullPointerException exception){
@@ -196,27 +201,24 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
+    public WebPubSubServiceClient getServiceClient() {
+        return new WebPubSubServiceClientBuilder()
+                .connectionString(webPubSubConnectStr)
+                .hub("accountSearch")
+                .buildClient();
+    }
+
+    @Override
     public String getClientAccessToken(Long accountId) {
+
         GetClientAccessTokenOptions options = new GetClientAccessTokenOptions();
         options.setUserId(accountId.toString());
-//        WebPubSubClientAccessToken token = service.getClientAccessToken(
-//                new GetClientAccessTokenOptions()
-//                        .setUserId("1")
-//        );
 
-
-
-        try{
-            return webPubSubService.createClientAndGetToken(options,
-                    this::searchAccountsByUserNameOrEmail)
-                    .getUrl();
-        }
-        catch (URISyntaxException exception){
-            exception.printStackTrace();
-            return null;
-        }
-
+        return this
+                .getServiceClient()
+                .getClientAccessToken(options).getUrl();
 
     }
+
 
 }

@@ -1,46 +1,29 @@
 package com.odinbook;
 
-import com.azure.messaging.webpubsub.WebPubSubServiceClient;
-import com.azure.messaging.webpubsub.WebPubSubServiceClientBuilder;
-import com.azure.messaging.webpubsub.models.GetClientAccessTokenOptions;
-import com.azure.messaging.webpubsub.models.WebPubSubClientAccessToken;
-import com.azure.messaging.webpubsub.models.WebPubSubContentType;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odinbook.model.Account;
-import com.odinbook.pojo.Message;
 import com.odinbook.repository.AccountRepository;
-import com.odinbook.service.AccountServiceImpl;
 import com.odinbook.service.ImageServiceImpl;
 import com.odinbook.validation.AccountForm;
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Profile;
+
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -49,7 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Profile(value = "test")
 public class AccountTest {
     @Autowired
     private AccountRepository accountRepository;
@@ -59,11 +41,7 @@ public class AccountTest {
     private MockMvc mockMvc;
     @MockBean
     private ImageServiceImpl imageService;
-    @Autowired
-    private AccountServiceImpl accountService;
 
-    @Value("${spring.cloud.azure.pubsub.connection-string}")
-    private String connectStr;
     @BeforeEach
     public void beforeEach() throws IOException{
 
@@ -124,7 +102,7 @@ public class AccountTest {
 
         Account account = new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), Account.class);
 
-        assertEquals("my full name", account.getFullName());
+        assertEquals("myFullName", account.getFullName());
         assertEquals("userName", account.getUserName());
         assertEquals("exampleuser@gmail.com", account.getEmail());
         assertEquals("aboutMe", account.getAboutMe());
@@ -222,69 +200,7 @@ public class AccountTest {
 
 
 
-    @Test
-    public void ts() throws URISyntaxException, JsonProcessingException, InterruptedException {
-//        Account searchAccount1 = testUtils.createRandomAccount();
-//        Account searchAccount2 = testUtils.createRandomAccount();
-//
-//        Mockito
-//                .when(accountService.searchAccountsByUserNameOrEmail(anyString()))
-//                .thenReturn(List.of(searchAccount1,searchAccount2));
-//        Mockito
-//                .when(accountService.getClientAccessToken(anyLong()))
-//                .thenCallRealMethod();
-//
 
-        accountService.getClientAccessToken(0L);
-
-        WebPubSubServiceClient service = new WebPubSubServiceClientBuilder()
-                .connectionString(connectStr)
-                .hub("accountSearch")
-                .buildClient();
-
-
-        WebPubSubClientAccessToken token = service.getClientAccessToken(
-                new GetClientAccessTokenOptions()
-                        .setUserId("1")
-        );
-        WebSocketClient webSocketClient = new WebSocketClient(new URI(token.getUrl())) {
-            @Override
-            public void onMessage(String message) {
-                System.out.printf("Message received: %s%n", message);
-
-            }
-
-            @Override
-            public void onClose(int arg0, String arg1, boolean arg2) {
-                // TODO Auto-generated method stub
-            }
-
-            @Override
-            public void onError(Exception arg0) {
-                // TODO Auto-generated method stub
-            }
-
-            @Override
-            public void onOpen(ServerHandshake arg0) {
-                // TODO Auto-generated method stub
-
-            }
-
-        };
-
-        webSocketClient.connect();
-
-        Message message = new Message();
-        message.setId(1L);
-        message.setContent("Hello World");
-
-        String jsonString = new ObjectMapper().writeValueAsString(message);
-        service.sendToUser("0",jsonString,WebPubSubContentType.TEXT_PLAIN);
-        Thread.sleep(5000L);
-
-
-
-    }
 
 
 
