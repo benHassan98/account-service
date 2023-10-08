@@ -104,9 +104,5 @@ public class AccountController {
     public String getClientToken(@PathVariable Long accountId){
         return accountService.getClientAccessToken(accountId);
     }
-    @GetMapping("/serviceClient")
-    public WebPubSubServiceClient getServiceClient(){
-        return accountService.getServiceClient();
-    }
 
 }

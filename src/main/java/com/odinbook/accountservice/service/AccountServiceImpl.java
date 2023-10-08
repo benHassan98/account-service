@@ -105,11 +105,11 @@ public class AccountServiceImpl implements AccountService{
 
         try{
             addingAccount = findAccountById(addFriendRecord.addingId())
-                    .orElseThrow(NullPointerException::new);
+                    .orElseThrow();
             addedAccount =  findAccountById(addFriendRecord.addedId())
-                    .orElseThrow(NullPointerException::new);
+                    .orElseThrow();
         }
-        catch (NullPointerException exception){
+        catch (NoSuchElementException exception){
             exception.printStackTrace();
             return;
         }
@@ -192,21 +192,15 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public WebPubSubServiceClient getServiceClient() {
-        return new WebPubSubServiceClientBuilder()
-                .connectionString(webPubSubConnectStr)
-                .hub("accountSearch")
-                .buildClient();
-    }
-
-    @Override
     public String getClientAccessToken(Long accountId) {
 
         GetClientAccessTokenOptions options = new GetClientAccessTokenOptions();
         options.setUserId(accountId.toString());
 
-        return this
-                .getServiceClient()
+        return new WebPubSubServiceClientBuilder()
+                .connectionString(webPubSubConnectStr)
+                .hub("accountSearch")
+                .buildClient()
                 .getClientAccessToken(options).getUrl();
 
     }
