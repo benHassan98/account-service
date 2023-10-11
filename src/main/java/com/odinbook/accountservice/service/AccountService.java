@@ -3,7 +3,9 @@ package com.odinbook.accountservice.service;
 import com.azure.messaging.webpubsub.WebPubSubServiceClient;
 import com.odinbook.accountservice.model.Account;
 import com.odinbook.accountservice.record.AddFriendRecord;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,7 +15,7 @@ public interface AccountService {
     public Optional<Account> findAccountById(Long id);
     public Optional<Account> findAccountByEmail(String email);
     public List<Account> findAccountByUserName(String userName);
-    public Optional<Account> updateAccount(Account account);
+    public Optional<Account> updateAccount(Account newAccount);
     public void addFriend(AddFriendRecord addFriendRecord);
     public Boolean isEmailUnique(String email);
     public void resetPassword(String newPassword, String email);
@@ -23,5 +25,6 @@ public interface AccountService {
     public void unFollow(Long followerId,Long followeeId);
     public List<Account> searchAccountsByUserNameOrEmail(String searchText);
     public String getClientAccessToken(Long accountId);
+    public void createBlob(String blobName, MultipartFile image) throws IOException;
 
 }

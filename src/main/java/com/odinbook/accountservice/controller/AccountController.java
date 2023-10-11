@@ -45,7 +45,7 @@ public class AccountController {
 
         return accountService.findAccountById(id)
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/follow")
@@ -68,7 +68,7 @@ public class AccountController {
     public ResponseEntity<?> findByEmail(@PathVariable String email){
         return accountService.findAccountByEmail(email)
                 .map(ResponseEntity::ok)
-                .orElseGet(()->ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("userName/{userName}")
@@ -81,7 +81,7 @@ public class AccountController {
 
         return accountService.updateAccount(account)
                 .map(ResponseEntity::ok)
-                .orElseGet(()->ResponseEntity.badRequest().build());
+                .orElse(ResponseEntity.badRequest().build());
     }
 
     @PostMapping("/verify")

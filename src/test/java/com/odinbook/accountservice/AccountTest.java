@@ -4,28 +4,22 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odinbook.accountservice.model.Account;
 import com.odinbook.accountservice.repository.AccountRepository;
-import com.odinbook.accountservice.service.ImageServiceImpl;
 import com.odinbook.accountservice.validation.AccountForm;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,26 +32,15 @@ public class AccountTest {
     private TestUtils testUtils;
     @Autowired
     private MockMvc mockMvc;
-    @MockBean
-    private ImageServiceImpl imageService;
+
 
     @BeforeEach
-    public void beforeEach() throws IOException{
-
-        Mockito
-                .doNothing()
-                .when(imageService)
-                .createBlob(anyString(),any(MultipartFile.class));
-        Mockito
-                .when(imageService.findBlob(anyString()))
-                .thenReturn("test".getBytes());
-
+    public void beforeEach(){
         accountRepository.deleteAll();
     }
 
     @AfterEach
     public void afterEach() {
-
         accountRepository.deleteAll();
     }
 
