@@ -23,14 +23,14 @@ import java.net.URISyntaxException;
 @Component
 public class WebPubSubConfig {
 
+    @Value("${spring.cloud.azure.pubsub.connection-string}")
+    private String webPubSubConnectStr;
+
     @Autowired
     private AccountService accountService;
 
     @PostConstruct
-    public void init(
-            @Value("${spring.cloud.azure.pubsub.connection-string}")
-                         String webPubSubConnectStr
-    ) throws URISyntaxException {
+    public void init() throws URISyntaxException {
 
         WebPubSubServiceClient service = new WebPubSubServiceClientBuilder()
                 .connectionString(webPubSubConnectStr)

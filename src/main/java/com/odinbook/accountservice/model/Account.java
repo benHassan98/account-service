@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.odinbook.accountservice.entityListener.AccountListener;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +14,6 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@EntityListeners(AccountListener.class)
 @Table(name = "accounts")
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,

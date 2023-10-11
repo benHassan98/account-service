@@ -26,23 +26,24 @@ import java.util.*;
 
 @Service
 public class AccountServiceImpl implements AccountService{
-    @Value("${spring.cloud.azure.storage.connection-string}")
-    private String blobStorageConnectStr;
     @Value("${spring.cloud.azure.pubsub.connection-string}")
     private String webPubSubConnectStr;
 
     private final AccountRepository accountRepository;
+    private final ImageService imageService;
+    private final ElasticSearchService elasticSearchService;
     private final PasswordEncoder passwordEncoder;
-    private final ElasticsearchClient elasticsearchClient;
 
     @Autowired
     public AccountServiceImpl(AccountRepository accountRepository,
-                              PasswordEncoder passwordEncoder,
-                              ElasticsearchClient elasticsearchClient
+                              ImageService imageService,
+                              ElasticSearchService elasticSearchService,
+                              PasswordEncoder passwordEncoder
                               ) {
         this.accountRepository = accountRepository;
+        this.imageService = imageService;
+        this.elasticSearchService = elasticSearchService;
         this.passwordEncoder = passwordEncoder;
-        this.elasticsearchClient = elasticsearchClient;
 
     }
 
@@ -51,37 +52,14 @@ public class AccountServiceImpl implements AccountService{
 
         account.setPassword(passwordEncoder.encode(account.getPassword()));
         Account savedAccount = accountRepository.saveAndFlush(account);
-        try{
-            String blobName = Objects.isNull(account.getImage())?
-                    Objects.nonNull(account.getPicture())?account.getPicture():
-                    "defaultPicture":
-                    account.getId()+"/"+account.getImage().getName();
-
-            this.createBlob(blobName,account.getImage());
-
-        }
-        catch (IOException exception){
-            exception.printStackTrace();
-            account.setPicture(
-                    Objects.nonNull(account.getPicture())?
-                            account.getPicture():
-                            "defaultPicture"
-            );
-
-        }
 
         try{
-            elasticsearchClient.index(idx->idx
-                    .index("accounts")
-                    .id(savedAccount.getId().toString())
-                    .document(savedAccount)
-
-            );
-
+            elasticSearchService.insertAccount(savedAccount);
         }
         catch (IOException | ElasticsearchException exception){
             exception.printStackTrace();
         }
+
         return savedAccount;
     }
 
@@ -111,23 +89,15 @@ public class AccountServiceImpl implements AccountService{
 
         return findAccountById(newAccount.getId())
                 .map(oldAccount->{
-                    try{
-                        String blobName = Objects.isNull(newAccount.getImage())?
-                                newAccount.getPicture():
-                                newAccount.getId()+"/"+newAccount.getImage().getName();
+                    String blobName = Objects.isNull(newAccount.getImage())?
+                            newAccount.getPicture():
+                            newAccount.getId()+"/"+newAccount.getImage().getName();
 
-                        createBlob(blobName,newAccount.getImage());
-                        newAccount.setPicture(blobName);
-                    }
-                    catch (IOException exception){
-                        exception.printStackTrace();
-                    }
                     try{
-                        elasticsearchClient.update(u->u
-                                        .index("accounts")
-                                        .id(newAccount.getId().toString())
-                                        .doc(newAccount)
-                                , Account.class);
+                        imageService.createBlob(blobName,newAccount.getImage());
+                        newAccount.setPicture(blobName);
+
+                        elasticSearchService.updateAccount(newAccount);
                     }
                     catch (IOException | ElasticsearchException exception){
                         exception.printStackTrace();
@@ -208,19 +178,7 @@ public class AccountServiceImpl implements AccountService{
 
 
         try{
-            return  elasticsearchClient.search(s -> s
-                            .index("accounts")
-                            .query(q -> q
-                                    .multiMatch(v -> v
-                                            .fields(List.of("userName", "email"))
-                                            .fuzziness("AUTO")
-                                            .query(searchText)
-                                    )
-                            )
-                    ,
-                    Account.class
-            ).hits().hits().stream().map(Hit::source).toList();
-
+            return elasticSearchService.searchAccountsByUserNameOrEmail(searchText);
         }
         catch (IOException | ElasticsearchException exception){
             exception.printStackTrace();
@@ -244,16 +202,6 @@ public class AccountServiceImpl implements AccountService{
 
     }
 
-    @Override
-    public void createBlob(String blobName, MultipartFile image) throws IOException{
-
-        new BlobServiceClientBuilder()
-                .connectionString(blobStorageConnectStr)
-                .buildClient()
-                .getBlobContainerClient("images")
-                .getBlobClient(blobName)
-                .upload(image.getInputStream());
-    }
 
 
 }

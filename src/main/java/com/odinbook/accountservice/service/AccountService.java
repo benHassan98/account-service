@@ -25,6 +25,5 @@ public interface AccountService {
     public void unFollow(Long followerId,Long followeeId);
     public List<Account> searchAccountsByUserNameOrEmail(String searchText);
     public String getClientAccessToken(Long accountId);
-    public void createBlob(String blobName, MultipartFile image) throws IOException;
 
 }

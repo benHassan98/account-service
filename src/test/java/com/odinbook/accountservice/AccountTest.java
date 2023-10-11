@@ -4,18 +4,23 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odinbook.accountservice.model.Account;
 import com.odinbook.accountservice.repository.AccountRepository;
+import com.odinbook.accountservice.service.ElasticSearchServiceImpl;
+import com.odinbook.accountservice.service.ImageServiceImpl;
 import com.odinbook.accountservice.validation.AccountForm;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -32,10 +37,36 @@ public class AccountTest {
     private TestUtils testUtils;
     @Autowired
     private MockMvc mockMvc;
+    @MockBean
+    private ImageServiceImpl imageService;
+    @MockBean
+    private ElasticSearchServiceImpl elasticSearchService;
 
 
     @BeforeEach
-    public void beforeEach(){
+    public void beforeEach() throws IOException {
+        Mockito
+                .doNothing()
+                .when(imageService)
+                .createBlob(Mockito.anyString(),Mockito.any());
+        Mockito
+                .doNothing()
+                .when(elasticSearchService)
+                .insertAccount(Mockito.any());
+
+        Mockito
+                .doNothing()
+                .when(elasticSearchService)
+                .updateAccount(Mockito.any());
+
+        Mockito
+                .when(elasticSearchService.searchAccountsByUserNameOrEmail(Mockito.anyString()))
+                .thenReturn(List.of(
+                        testUtils.createRandomAccount(),
+                        testUtils.createRandomAccount(),
+                        testUtils.createRandomAccount()
+                        ));
+
         accountRepository.deleteAll();
     }
 
@@ -169,6 +200,7 @@ public class AccountTest {
                                 .param("email",account.getEmail())
                                 .param("password","password")
                                 .param("passwordConfirm","password")
+                                .param("picture",account.getPicture())
                                 .param("aboutMe","aboutMe")
                                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
@@ -177,6 +209,7 @@ public class AccountTest {
         assertEquals(account.getId(),resAccount.getId());
         assertEquals("updateName",resAccount.getFullName());
         assertEquals("updateUser",resAccount.getUserName());
+        assertEquals("picture",resAccount.getPicture());
 
     }
 

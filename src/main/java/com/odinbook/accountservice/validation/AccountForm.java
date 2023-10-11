@@ -39,6 +39,7 @@ public class AccountForm {
         account.setPassword(this.password);
         account.setAboutMe(this.aboutMe);
         account.setImage(this.image);
+        account.setPicture("defaultPicture");
 
         return account;
     }
