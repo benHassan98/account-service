@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 public class AccountController {
@@ -41,11 +42,9 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable Long id){
+    public ResponseEntity<?> findById(@PathVariable Long id) throws NoSuchElementException {
 
-        return accountService.findAccountById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(accountService.findAccountById(id));
     }
 
     @PostMapping("/follow")
@@ -65,10 +64,9 @@ public class AccountController {
     }
 
     @GetMapping("email/{email}")
-    public ResponseEntity<?> findByEmail(@PathVariable String email){
-        return accountService.findAccountByEmail(email)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> findByEmail(@PathVariable String email) throws NoSuchElementException {
+        return ResponseEntity.ok(accountService.findAccountByEmail(email));
+
     }
 
     @GetMapping("userName/{userName}")
@@ -77,11 +75,9 @@ public class AccountController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateAccount(@ModelAttribute Account account){
+    public ResponseEntity<?> updateAccount(@ModelAttribute Account account) throws NoSuchElementException {
 
-        return accountService.updateAccount(account)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+        return ResponseEntity.ok(accountService.updateAccount(account));
     }
 
     @PostMapping("/verify")
@@ -103,6 +99,11 @@ public class AccountController {
     @GetMapping("/clientToken/{accountId}")
     public String getClientToken(@PathVariable Long accountId){
         return accountService.getClientAccessToken(accountId);
+    }
+
+    @ExceptionHandler(value = NoSuchElementException.class)
+    public ResponseEntity<?> noSuchElementExceptionHandler(){
+        return ResponseEntity.notFound().build();
     }
 
 }

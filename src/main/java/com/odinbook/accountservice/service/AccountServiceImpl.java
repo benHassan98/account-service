@@ -69,13 +69,15 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public Optional<Account> findAccountById(Long id) {
-        return accountRepository.findById(id);
+    public Account findAccountById(Long id) throws NoSuchElementException {
+        return accountRepository.findById(id)
+                .orElseThrow();
     }
 
     @Override
-    public Optional<Account> findAccountByEmail(String email) {
-        return accountRepository.findByEmail(email);
+    public Account findAccountByEmail(String email)  throws NoSuchElementException {
+        return accountRepository.findByEmail(email)
+                .orElseThrow();
     }
 
     @Override
@@ -84,19 +86,23 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public Optional<Account> updateAccount(Account newAccount) {
+    public Account updateAccount(Account newAccount) throws NoSuchElementException {
 
 
-        return findAccountById(newAccount.getId())
+        return accountRepository.findById(newAccount.getId())
                 .map(oldAccount->{
                     String blobName = Objects.isNull(newAccount.getImage())?
                             newAccount.getPicture():
                             newAccount.getId()+"/"+newAccount.getImage().getName();
-
                     try{
                         imageService.createBlob(blobName,newAccount.getImage());
                         newAccount.setPicture(blobName);
+                    }
+                    catch (IOException exception){
+                        exception.printStackTrace();
+                    }
 
+                    try{
                         elasticSearchService.updateAccount(newAccount);
                     }
                     catch (IOException | ElasticsearchException exception){
@@ -105,7 +111,8 @@ public class AccountServiceImpl implements AccountService{
 
                     newAccount.setPassword(oldAccount.getPassword());
                     return accountRepository.saveAndFlush(newAccount);
-                });
+                })
+                .orElseThrow();
     }
 
 
@@ -118,9 +125,9 @@ public class AccountServiceImpl implements AccountService{
                 addedAccount;
 
         try{
-            addingAccount = findAccountById(addFriendRecord.addingId())
+            addingAccount = accountRepository.findById(addFriendRecord.addingId())
                     .orElseThrow();
-            addedAccount =  findAccountById(addFriendRecord.addedId())
+            addedAccount =  accountRepository.findById(addFriendRecord.addedId())
                     .orElseThrow();
         }
         catch (NoSuchElementException exception){
@@ -141,7 +148,7 @@ public class AccountServiceImpl implements AccountService{
 
     @Override
     public Boolean isEmailUnique(String email) {
-        return findAccountByEmail(email).isEmpty();
+        return accountRepository.findByEmail(email).isEmpty();
     }
     @Override
     public void resetPassword(String newPassword,String email) {

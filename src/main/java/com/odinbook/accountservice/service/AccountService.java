@@ -7,15 +7,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public interface AccountService {
     public Account createAccount(Account account);
     public List<Account> findAll();
-    public Optional<Account> findAccountById(Long id);
-    public Optional<Account> findAccountByEmail(String email);
+    public Account findAccountById(Long id) throws NoSuchElementException;
+    public Account findAccountByEmail(String email) throws NoSuchElementException;
     public List<Account> findAccountByUserName(String userName);
-    public Optional<Account> updateAccount(Account newAccount);
+    public Account updateAccount(Account newAccount) throws NoSuchElementException;
     public void addFriend(AddFriendRecord addFriendRecord);
     public Boolean isEmailUnique(String email);
     public void resetPassword(String newPassword, String email);
