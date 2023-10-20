@@ -1,8 +1,11 @@
 package com.odinbook.accountservice.service;
 
 import com.azure.messaging.webpubsub.WebPubSubServiceClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.odinbook.accountservice.model.Account;
 import com.odinbook.accountservice.record.AddFriendRecord;
+import com.odinbook.accountservice.record.NotifyAccountsRecord;
+import org.springframework.messaging.Message;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -18,6 +21,8 @@ public interface AccountService {
     public List<Account> findAccountByUserName(String userName);
     public Account updateAccount(Account newAccount) throws NoSuchElementException;
     public void addFriend(AddFriendRecord addFriendRecord);
+    public List<Long> findNotifiedAccountsToNewPost(NotifyAccountsRecord notifyAccountsRecord);
+    public NotifyAccountsRecord findNotifiedAccountsFromPost(Message<NotifyAccountsRecord> message);
     public Boolean isEmailUnique(String email);
     public void resetPassword(String newPassword, String email);
     public void verifyAccount(String email);
@@ -25,6 +30,5 @@ public interface AccountService {
     public void follow(Long followerId,Long followeeId);
     public void unFollow(Long followerId,Long followeeId);
     public List<Account> searchAccountsByUserNameOrEmail(String searchText);
-    public String getClientAccessToken(Long accountId);
 
 }

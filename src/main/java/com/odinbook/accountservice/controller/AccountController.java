@@ -96,10 +96,6 @@ public class AccountController {
 
         return ResponseEntity.ok().build();
     }
-    @GetMapping("/clientToken/{accountId}")
-    public String getClientToken(@PathVariable Long accountId){
-        return accountService.getClientAccessToken(accountId);
-    }
 
     @ExceptionHandler(value = NoSuchElementException.class)
     public ResponseEntity<?> noSuchElementExceptionHandler(){

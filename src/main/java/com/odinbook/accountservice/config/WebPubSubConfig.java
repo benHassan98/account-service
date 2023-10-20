@@ -23,65 +23,65 @@ import java.net.URISyntaxException;
 @Component
 public class WebPubSubConfig {
 
-    @Value("${spring.cloud.azure.pubsub.connection-string}")
-    private String webPubSubConnectStr;
-
-    @Autowired
-    private AccountService accountService;
-
-    @PostConstruct
-    public void init() throws URISyntaxException {
-
-        WebPubSubServiceClient service = new WebPubSubServiceClientBuilder()
-                .connectionString(webPubSubConnectStr)
-                .hub("accountSearch")
-                .buildClient();
-
-        WebPubSubClientAccessToken token = service.getClientAccessToken(
-                new GetClientAccessTokenOptions()
-                        .setUserId("0")
-        );
-
-        WebSocketClient webSocketClient = new WebSocketClient(new URI(token.getUrl())) {
-            @Override
-            public void onMessage(String jsonString) {
-                try {
-                    MessageRecord message = new ObjectMapper().readValue(jsonString,MessageRecord.class);
-                    service.sendToUser(
-                            message.id().toString(),
-                            accountService
-                                    .searchAccountsByUserNameOrEmail(message.content())
-                                    .toString(),
-                            WebPubSubContentType.APPLICATION_JSON
-                    );
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-            @Override
-            public void onClose(int arg0, String arg1, boolean arg2) {
-                // TODO Auto-generated method stub
-            }
-
-            @Override
-            public void onError(Exception arg0) {
-                // TODO Auto-generated method stub
-            }
-
-            @Override
-            public void onOpen(ServerHandshake arg0) {
-                // TODO Auto-generated method stub
-
-            }
-
-        };
-
-        webSocketClient.connect();
-
-
-    }
+//    @Value("${spring.cloud.azure.pubsub.connection-string}")
+//    private String webPubSubConnectStr;
+//
+//    @Autowired
+//    private AccountService accountService;
+//
+//    @PostConstruct
+//    public void init() throws URISyntaxException {
+//
+//        WebPubSubServiceClient service = new WebPubSubServiceClientBuilder()
+//                .connectionString(webPubSubConnectStr)
+//                .hub("accountSearch")
+//                .buildClient();
+//
+//        WebPubSubClientAccessToken token = service.getClientAccessToken(
+//                new GetClientAccessTokenOptions()
+//                        .setUserId("0")
+//        );
+//
+//        WebSocketClient webSocketClient = new WebSocketClient(new URI(token.getUrl())) {
+//            @Override
+//            public void onMessage(String jsonString) {
+//                try {
+//                    MessageRecord message = new ObjectMapper().readValue(jsonString,MessageRecord.class);
+//                    service.sendToUser(
+//                            message.id().toString(),
+//                            accountService
+//                                    .searchAccountsByUserNameOrEmail(message.content())
+//                                    .toString(),
+//                            WebPubSubContentType.APPLICATION_JSON
+//                    );
+//                } catch (JsonProcessingException e) {
+//                    e.printStackTrace();
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onClose(int arg0, String arg1, boolean arg2) {
+//                // TODO Auto-generated method stub
+//            }
+//
+//            @Override
+//            public void onError(Exception arg0) {
+//                // TODO Auto-generated method stub
+//            }
+//
+//            @Override
+//            public void onOpen(ServerHandshake arg0) {
+//                // TODO Auto-generated method stub
+//
+//            }
+//
+//        };
+//
+//        webSocketClient.connect();
+//
+//
+//    }
 
 
 }
