@@ -13,7 +13,7 @@ public class STOMPConfig implements WebSocketMessageBrokerConfigurer {
 
     @Value("${spring.rabbitmq.host}")
     private String host;
-    @Value("${spring.rabbitmq.port}")
+    @Value("${broker.port}")
     private Integer port;
     @Value("${spring.rabbitmq.username}")
     private String userName;
@@ -23,9 +23,10 @@ public class STOMPConfig implements WebSocketMessageBrokerConfigurer {
     private String url;
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableStompBrokerRelay("/topic")
+        config
+                .enableStompBrokerRelay("/exchange")
                 .setRelayHost(host)
-                .setRelayPort(61613)
+                .setRelayPort(port)
                 .setClientLogin(userName)
                 .setClientPasscode(password);
 
