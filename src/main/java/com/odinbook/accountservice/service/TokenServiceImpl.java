@@ -54,7 +54,7 @@ public class TokenServiceImpl implements TokenService{
     public Token verifyToken(String code) {
         long twentyMins = 20*60*1000L;
         Token token = tokenRepository.findTokenByCode(code);
-        if(Objects.isNull(token) || new Date().getTime()-token.getCreatedDate().getTime() <= twentyMins ){
+        if(Objects.isNull(token) || new Date().getTime()-token.getCreatedDate().getEpochSecond() <= twentyMins ){
             return null;
         }
         tokenRepository.deleteById(token.getId());

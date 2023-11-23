@@ -2,19 +2,15 @@ package com.odinbook.accountservice.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
-import co.elastic.clients.elasticsearch.core.search.Hit;
-import com.azure.messaging.webpubsub.WebPubSubServiceClient;
-import com.azure.messaging.webpubsub.WebPubSubServiceClientBuilder;
-import com.azure.messaging.webpubsub.models.GetClientAccessTokenOptions;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odinbook.accountservice.record.NotifyAccountsRecord;
 import com.odinbook.accountservice.repository.AccountRepository;
 import com.odinbook.accountservice.model.Account;
 import com.odinbook.accountservice.record.AddFriendRecord;
 import com.nimbusds.jose.util.Base64;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,9 +26,9 @@ import java.util.*;
 
 @Service
 public class AccountServiceImpl implements AccountService{
-//    @Value("${spring.cloud.azure.pubsub.connection-string}")
-//    private String webPubSubConnectStr;
 
+    @PersistenceContext
+    private EntityManager entityManager;
     private final AccountRepository accountRepository;
     private final ImageService imageService;
     private final ElasticSearchService elasticSearchService;
@@ -229,33 +225,59 @@ public class AccountServiceImpl implements AccountService{
         return accountRepository.findByEmail(email).isEmpty();
     }
     @Override
+    @Transactional
     public void resetPassword(String newPassword,String email) {
-        accountRepository.resetPassword(passwordEncoder.encode(newPassword),email);
+        String savedNewPassword = passwordEncoder.encode(newPassword);
+
+        entityManager
+                .createNativeQuery("UPDATE accounts SET password = :newPassword WHERE email = :email")
+                .setParameter("newPassword",savedNewPassword)
+                .setParameter("email",email)
+                .executeUpdate();
+
     }
 
     @Override
+    @Transactional
     public void verifyAccount(String email) {
-        accountRepository.verifyAccount(email);
+
+        entityManager
+                .createNativeQuery("UPDATE accounts SET is_verified = 1 WHERE email = :email")
+                .setParameter("email",email)
+                .executeUpdate();
+
     }
 
     @Override
     public List<Account> findNewUsers() {
         long threeMonths = 3*365*24*60*60*1000L;
         return  accountRepository.findAll().stream().filter(account->
-                new Date().getTime() - account.getCreatedDate().getTime() <= threeMonths
+                new Date().getTime() - account.getCreatedDate().getEpochSecond() <= threeMonths
                         && !account.getUserName().equals("ExampleUser")
         ).toList();
 
     }
 
     @Override
+    @Transactional
     public void follow(Long followerId,Long followeeId) {
-        accountRepository.follow(followerId,followeeId);
+
+        entityManager
+                .createNativeQuery("INSERT INTO followers VALUES(:followerId,:followeeId)")
+                .setParameter("followerId",followerId)
+                .setParameter("followeeId",followeeId)
+                .executeUpdate();
+
     }
 
     @Override
+    @Transactional
     public void unFollow(Long followerId,Long followeeId) {
-        accountRepository.unFollow(followerId,followeeId);
+        entityManager
+                .createNativeQuery("DELETE FROM followers WHERE follower_id = :followerId AND followee_id = :followeeId")
+                .setParameter("followerId",followerId)
+                .setParameter("followeeId",followeeId)
+                .executeUpdate();
     }
 
     @Override
