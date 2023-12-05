@@ -21,12 +21,13 @@ public interface AccountService {
     public List<Account> findAccountByUserName(String userName);
     public Account updateAccount(Account newAccount) throws NoSuchElementException;
     public void addFriend(AddFriendRecord addFriendRecord);
+    public void removeFriend(Long removingId, Long removedId);
     public List<Long> findNotifiedAccountsToNewPost(NotifyAccountsRecord notifyAccountsRecord);
     public NotifyAccountsRecord findNotifiedAccountsFromPost(Message<NotifyAccountsRecord> message);
     public Boolean isEmailUnique(String email);
     public void resetPassword(String newPassword, String email);
     public void verifyAccount(String email);
-    public List<Account> findNewUsers();
+    public List<Long> findNewUsers();
     public void follow(Long followerId,Long followeeId);
     public void unFollow(Long followerId,Long followeeId);
     public List<Account> searchAccountsByUserNameOrEmail(String searchText);

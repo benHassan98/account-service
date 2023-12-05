@@ -4,7 +4,7 @@ import com.odinbook.accountservice.model.Account;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import org.springframework.web.multipart.MultipartFile;
+
 
 
 public class AccountForm {
@@ -27,7 +27,6 @@ public class AccountForm {
     @Size(min = 6,max = 40)
     private String passwordConfirm;
     private String aboutMe;
-    private MultipartFile image;
 
     public Account getAccount(){
         Account account = new Account();
@@ -38,8 +37,7 @@ public class AccountForm {
         account.setEmail(this.email);
         account.setPassword(this.password);
         account.setAboutMe(this.aboutMe);
-        account.setImage(this.image);
-        account.setPicture("defaultPicture");
+        account.setPicture("default");
 
         return account;
     }
@@ -74,14 +72,6 @@ public class AccountForm {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public MultipartFile getImage() {
-        return image;
-    }
-
-    public void setImage(MultipartFile image) {
-        this.image = image;
     }
 
     public String getAboutMe() {

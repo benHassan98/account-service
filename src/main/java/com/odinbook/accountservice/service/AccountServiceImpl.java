@@ -93,10 +93,11 @@ public class AccountServiceImpl implements AccountService{
                 .map(oldAccount->{
                     String blobName = Objects.isNull(newAccount.getImage())?
                             newAccount.getPicture():
-                            newAccount.getId()+"/"+newAccount.getImage().getName();
+                            newAccount.getImage().getId();
                     try{
-                        imageService.createBlob(blobName,newAccount.getImage());
+                        imageService.createBlob(blobName,newAccount.getImage().getFile());
                         newAccount.setPicture(blobName);
+                        newAccount.setImage(null);
                     }
                     catch (IOException exception){
                         exception.printStackTrace();
@@ -117,8 +118,10 @@ public class AccountServiceImpl implements AccountService{
 
 
 
-    @ServiceActivator(inputChannel = "addFriendRequest")
+
     @Override
+    @ServiceActivator(inputChannel = "addFriendRequest")
+    @Transactional
     public void addFriend(@Payload AddFriendRecord addFriendRecord) {
 
         Account addingAccount,
@@ -136,6 +139,7 @@ public class AccountServiceImpl implements AccountService{
         }
 
         addingAccount.addFriend(addedAccount);
+        addedAccount.addFriend(addingAccount);
 
         addingAccount.follow(addedAccount);
         addedAccount.follow(addingAccount);
@@ -145,8 +149,33 @@ public class AccountServiceImpl implements AccountService{
         accountRepository.save(addedAccount);
 
     }
+    @Override
+    public void removeFriend(Long removingId, Long removedId){
+
+        Account removingAccount,
+                removedAccount;
+
+        try{
+            removingAccount = accountRepository.findById(removingId)
+                    .orElseThrow();
+            removedAccount =  accountRepository.findById(removedId)
+                    .orElseThrow();
+        }
+        catch (NoSuchElementException exception){
+            exception.printStackTrace();
+            return;
+        }
+
+        removingAccount.removeFriend(removedAccount);
+        removedAccount.removeFriend(removingAccount);
+
+        accountRepository.saveAndFlush(removingAccount);
+        accountRepository.saveAndFlush(removedAccount);
+
+    }
 
     @Override
+    @Transactional
     public List<Long> findNotifiedAccountsToNewPost(NotifyAccountsRecord notifyAccountsRecord){
 
         Account account;
@@ -174,7 +203,7 @@ public class AccountServiceImpl implements AccountService{
 
         if(notifyAccountsRecord.isVisibleToFollowers()){
             accountList.addAll(
-                    account.getFolloweeList().stream().map(Account::getId).toList()
+                    account.getFollowerList().stream().map(Account::getId).toList()
             );
         }
 
@@ -184,39 +213,25 @@ public class AccountServiceImpl implements AccountService{
     }
 
 
-    @ServiceActivator(inputChannel = "findNotifiedAccountsRequest", outputChannel = "toRabbit")
+
     @Override
+    @ServiceActivator(inputChannel = "findNotifiedAccountsRequest", outputChannel = "toRabbit")
+    @Transactional
     public NotifyAccountsRecord findNotifiedAccountsFromPost(Message<NotifyAccountsRecord> message) {
         System.out.println(message);
         NotifyAccountsRecord notifyAccountsMessage = message.getPayload();
-        if( "newPost".equals(message.getHeaders().get("notificationType",String.class)) ){
 
-            List<Long>notifiedList = findNotifiedAccountsToNewPost(notifyAccountsMessage);
-
-            return new NotifyAccountsRecord(
-                    notifyAccountsMessage.id(),
-                    notifyAccountsMessage.accountId(),
-                    notifyAccountsMessage.postAccountId(),
-                    notifyAccountsMessage.postId(),
-                    notifyAccountsMessage.isShared(),
-                    notifyAccountsMessage.isVisibleToFollowers(),
-                    notifyAccountsMessage.friendsVisibilityType(),
-                    notifyAccountsMessage.visibleToFriendList(),
-                    notifiedList
-            );
-        }
-
+        List<Long>notifiedList = findNotifiedAccountsToNewPost(notifyAccountsMessage);
 
         return new NotifyAccountsRecord(
                 notifyAccountsMessage.id(),
                 notifyAccountsMessage.accountId(),
-                notifyAccountsMessage.postAccountId(),
                 notifyAccountsMessage.postId(),
                 notifyAccountsMessage.isShared(),
                 notifyAccountsMessage.isVisibleToFollowers(),
                 notifyAccountsMessage.friendsVisibilityType(),
                 notifyAccountsMessage.visibleToFriendList(),
-                List.of(notifyAccountsMessage.postAccountId())
+                notifiedList
         );
     }
 
@@ -249,12 +264,13 @@ public class AccountServiceImpl implements AccountService{
     }
 
     @Override
-    public List<Account> findNewUsers() {
+    public List<Long> findNewUsers() {
         long threeMonths = 3*365*24*60*60*1000L;
-        return  accountRepository.findAll().stream().filter(account->
-                new Date().getTime() - account.getCreatedDate().getEpochSecond() <= threeMonths
+
+        return accountRepository.findAll().stream().filter(account->
+                new Date().toInstant().getEpochSecond() - account.getCreatedDate().getEpochSecond() <= threeMonths
                         && !account.getUserName().equals("ExampleUser")
-        ).toList();
+        ).map(Account::getId).toList();
 
     }
 
@@ -283,15 +299,7 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public List<Account> searchAccountsByUserNameOrEmail(String searchText){
 
-
-        try{
-            return elasticSearchService.searchAccountsByUserNameOrEmail(searchText);
-        }
-        catch (IOException | ElasticsearchException exception){
-            exception.printStackTrace();
-        }
-
-        return Collections.emptyList();
+        return accountRepository.searchAccountsByUserNameOrEmail(searchText);
 
     }
 

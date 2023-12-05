@@ -1,6 +1,8 @@
 package com.odinbook.accountservice.controller;
 
 import com.azure.messaging.webpubsub.WebPubSubServiceClient;
+import com.odinbook.accountservice.DTO.ImageDTO;
+import com.odinbook.accountservice.record.TokenRecord;
 import com.odinbook.accountservice.service.AccountService;
 import com.odinbook.accountservice.validation.AccountForm;
 import com.odinbook.accountservice.model.Account;
@@ -9,10 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @RestController
 public class AccountController {
@@ -37,7 +41,7 @@ public class AccountController {
         return accountService.findAll();
     }
     @GetMapping("/newUsers")
-    public List<Account> findNewUsers(){
+    public List<Long> findNewUsers(){
         return accountService.findNewUsers();
     }
 
@@ -45,6 +49,14 @@ public class AccountController {
     public ResponseEntity<?> findById(@PathVariable Long id) throws NoSuchElementException {
 
         return ResponseEntity.ok(accountService.findAccountById(id));
+    }
+
+    @PostMapping("/unFriend")
+    public void unFriend(@RequestBody Map<String,Long> params){
+        Long removingId = params.get("removingId");
+        Long removedId = params.get("removedId");
+        accountService.removeFriend(removingId, removedId);
+
     }
 
     @PostMapping("/follow")
@@ -75,14 +87,20 @@ public class AccountController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateAccount(@ModelAttribute Account account) throws NoSuchElementException {
+    public ResponseEntity<?> updateAccount(@ModelAttribute Account account,
+                                           @RequestParam(value = "name",required = false) String name,
+                                           @RequestParam(value = "file",required = false) MultipartFile file) throws NoSuchElementException {
+
+        if(Objects.nonNull(name)){
+            account.setImage(new ImageDTO(name, file));
+        }
 
         return ResponseEntity.ok(accountService.updateAccount(account));
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<?> verifyAccount(@RequestBody String email){
-        accountService.verifyAccount(email);
+    public ResponseEntity<?> verifyAccount(@RequestBody TokenRecord tokenRecord){
+        accountService.verifyAccount(tokenRecord.email());
         return ResponseEntity.ok().build();
     }
 

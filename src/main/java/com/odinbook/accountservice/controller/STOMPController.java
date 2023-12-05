@@ -28,8 +28,8 @@ public class STOMPController {
                                                  @Payload String searchText){
 
 
-        List<Account> accountList = accountService
-                .searchAccountsByUserNameOrEmail(searchText);
+        List<Long> accountList = accountService
+                .searchAccountsByUserNameOrEmail(searchText).stream().map(Account::getId).toList();
 
         simpMessagingTemplate.convertAndSend(
                 "/exchange/accountSearch/"+accountId,

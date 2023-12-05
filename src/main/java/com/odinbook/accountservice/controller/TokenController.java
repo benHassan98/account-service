@@ -1,6 +1,7 @@
 package com.odinbook.accountservice.controller;
 
 import com.odinbook.accountservice.model.Token;
+import com.odinbook.accountservice.record.TokenRecord;
 import com.odinbook.accountservice.service.TokenService;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("token")
+@RequestMapping("/token")
 public class TokenController {
     private final TokenService tokenService;
 
@@ -29,7 +30,7 @@ public class TokenController {
         try{
             Token createdToken = tokenService.createToken(token);
             return Objects.isNull(createdToken)?
-                    ResponseEntity.badRequest().build():ResponseEntity.ok(createdToken);
+                    ResponseEntity.badRequest().build():ResponseEntity.ok().build();
         }
         catch (MessagingException exception){
 
@@ -39,9 +40,9 @@ public class TokenController {
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<?> verifyToken(@RequestBody String code){
+    public ResponseEntity<?> verifyToken(@RequestBody TokenRecord tokenRecord){
 
-        Token token = tokenService.verifyToken(code);
+        Token token = tokenService.verifyToken(tokenRecord.code());
         return Objects.isNull(token)?
                 ResponseEntity.badRequest().build():ResponseEntity.ok(token);
     }

@@ -54,7 +54,10 @@ public class TokenServiceImpl implements TokenService{
     public Token verifyToken(String code) {
         long twentyMins = 20*60*1000L;
         Token token = tokenRepository.findTokenByCode(code);
-        if(Objects.isNull(token) || new Date().getTime()-token.getCreatedDate().getEpochSecond() <= twentyMins ){
+        if(
+                Objects.isNull(token) ||
+                new Date().toInstant().getEpochSecond()-token.getCreatedDate().getEpochSecond() > twentyMins
+        ){
             return null;
         }
         tokenRepository.deleteById(token.getId());
@@ -63,7 +66,7 @@ public class TokenServiceImpl implements TokenService{
     }
     public String createVerifyAccountMessage(Token token){
 
-        String confirmationUrl = appUrl + "/"+token.getType()+"?token=" + token.getCode();
+        String confirmationUrl = appUrl + "/redirect/"+token.getType()+"?token=" + token.getCode();
 
         return "Hello,this Abdullah from OdinBook"+"\n\n"
                 +"Please follow the link to verify your account:"+"\n\n"
@@ -73,7 +76,7 @@ public class TokenServiceImpl implements TokenService{
 
     public String createResetPasswordMessage(Token token){
 
-        String confirmationUrl = appUrl + "/"+token.getType()+"?token=" + token.getCode();
+        String confirmationUrl = appUrl + "/redirect/"+token.getType()+"?token=" + token.getCode();
 
         return "Hello,this Abdullah from OdinBook"+"\n\n"
                 +"Please follow the link to reset your password:"+"\n\n"

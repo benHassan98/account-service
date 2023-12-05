@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.odinbook.accountservice.DTO.ImageDTO;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,7 +31,7 @@ public class Account {
     private String picture;
 
     @Transient
-    private MultipartFile image = null;
+    private ImageDTO image;
     @Column(name = "fullname",nullable = false)
     private String fullName;
     @Column(name = "username",nullable = false)
@@ -117,6 +118,10 @@ public class Account {
         this.friendList.add(addedAccount);
     }
 
+    public void removeFriend(Account account){
+        this.friendList.remove(account);
+    }
+
     public Long getId() {
         return id;
     }
@@ -188,11 +193,11 @@ public class Account {
         return List.copyOf(followeeList);
     }
 
-    public MultipartFile getImage() {
+    public ImageDTO getImage() {
         return image;
     }
 
-    public void setImage(MultipartFile image) {
+    public void setImage(ImageDTO image) {
         this.image = image;
     }
 }

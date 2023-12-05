@@ -3,7 +3,9 @@ package com.odinbook.accountservice;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odinbook.accountservice.model.Account;
+import com.odinbook.accountservice.model.Token;
 import com.odinbook.accountservice.repository.AccountRepository;
+import com.odinbook.accountservice.repository.TokenRepository;
 import com.odinbook.accountservice.service.ElasticSearchServiceImpl;
 import com.odinbook.accountservice.service.ImageServiceImpl;
 import com.odinbook.accountservice.validation.AccountForm;
@@ -21,6 +23,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 
@@ -34,6 +40,8 @@ public class AccountTest {
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
+    private TokenRepository tokenRepository;
+    @Autowired
     private TestUtils testUtils;
     @Autowired
     private MockMvc mockMvc;
@@ -43,37 +51,37 @@ public class AccountTest {
     private ElasticSearchServiceImpl elasticSearchService;
 
 
-    @BeforeEach
-    public void beforeEach() throws IOException {
-        Mockito
-                .doNothing()
-                .when(imageService)
-                .createBlob(Mockito.anyString(),Mockito.any());
-        Mockito
-                .doNothing()
-                .when(elasticSearchService)
-                .insertAccount(Mockito.any());
-
-        Mockito
-                .doNothing()
-                .when(elasticSearchService)
-                .updateAccount(Mockito.any());
-
-        Mockito
-                .when(elasticSearchService.searchAccountsByUserNameOrEmail(Mockito.anyString()))
-                .thenReturn(List.of(
-                        testUtils.createRandomAccount(),
-                        testUtils.createRandomAccount(),
-                        testUtils.createRandomAccount()
-                        ));
-
-        accountRepository.deleteAll();
-    }
-
-    @AfterEach
-    public void afterEach() {
-        accountRepository.deleteAll();
-    }
+//    @BeforeEach
+//    public void beforeEach() throws IOException {
+//        Mockito
+//                .doNothing()
+//                .when(imageService)
+//                .createBlob(Mockito.anyString(),Mockito.any());
+//        Mockito
+//                .doNothing()
+//                .when(elasticSearchService)
+//                .insertAccount(Mockito.any());
+//
+//        Mockito
+//                .doNothing()
+//                .when(elasticSearchService)
+//                .updateAccount(Mockito.any());
+//
+//        Mockito
+//                .when(elasticSearchService.searchAccountsByUserNameOrEmail(Mockito.anyString()))
+//                .thenReturn(List.of(
+//                        testUtils.createRandomAccount(),
+//                        testUtils.createRandomAccount(),
+//                        testUtils.createRandomAccount()
+//                        ));
+//
+//        accountRepository.deleteAll();
+//    }
+//
+//    @AfterEach
+//    public void afterEach() {
+//        accountRepository.deleteAll();
+//    }
 
     @Test
     public void findAllAccounts() throws Exception {
@@ -215,6 +223,23 @@ public class AccountTest {
 
 
 
+
+    @Test
+    public void ts(){
+
+        Token token = new Token();
+        token.setCode("123");
+        token.setAccountEmail("asdasd");
+        token.setType("asdasd");
+        tokenRepository.deleteAll();
+        Token savedToken = tokenRepository.saveAndFlush(token);
+        System.out.println(savedToken.getCreatedDate().getEpochSecond());
+        System.out.println(new Date().toInstant().getEpochSecond());
+
+
+
+
+    }
 
 
 
