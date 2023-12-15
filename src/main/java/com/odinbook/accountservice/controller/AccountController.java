@@ -1,7 +1,6 @@
 package com.odinbook.accountservice.controller;
 
-import com.azure.messaging.webpubsub.WebPubSubServiceClient;
-import com.odinbook.accountservice.DTO.ImageDTO;
+
 import com.odinbook.accountservice.record.TokenRecord;
 import com.odinbook.accountservice.service.AccountService;
 import com.odinbook.accountservice.validation.AccountForm;
@@ -87,13 +86,7 @@ public class AccountController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateAccount(@ModelAttribute Account account,
-                                           @RequestParam(value = "name",required = false) String name,
-                                           @RequestParam(value = "file",required = false) MultipartFile file) throws NoSuchElementException {
-
-        if(Objects.nonNull(name)){
-            account.setImage(new ImageDTO(name, file));
-        }
+    public ResponseEntity<?> updateAccount(@ModelAttribute Account account) throws NoSuchElementException {
 
         return ResponseEntity.ok(accountService.updateAccount(account));
     }

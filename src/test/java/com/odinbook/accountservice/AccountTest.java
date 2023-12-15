@@ -2,12 +2,11 @@ package com.odinbook.accountservice;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.odinbook.accountservice.model.Account;
 import com.odinbook.accountservice.model.Token;
 import com.odinbook.accountservice.repository.AccountRepository;
 import com.odinbook.accountservice.repository.TokenRepository;
-import com.odinbook.accountservice.service.ElasticSearchServiceImpl;
-import com.odinbook.accountservice.service.ImageServiceImpl;
 import com.odinbook.accountservice.validation.AccountForm;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,48 +39,21 @@ public class AccountTest {
     @Autowired
     private AccountRepository accountRepository;
     @Autowired
-    private TokenRepository tokenRepository;
-    @Autowired
     private TestUtils testUtils;
     @Autowired
     private MockMvc mockMvc;
-    @MockBean
-    private ImageServiceImpl imageService;
-    @MockBean
-    private ElasticSearchServiceImpl elasticSearchService;
 
 
-//    @BeforeEach
-//    public void beforeEach() throws IOException {
-//        Mockito
-//                .doNothing()
-//                .when(imageService)
-//                .createBlob(Mockito.anyString(),Mockito.any());
-//        Mockito
-//                .doNothing()
-//                .when(elasticSearchService)
-//                .insertAccount(Mockito.any());
-//
-//        Mockito
-//                .doNothing()
-//                .when(elasticSearchService)
-//                .updateAccount(Mockito.any());
-//
-//        Mockito
-//                .when(elasticSearchService.searchAccountsByUserNameOrEmail(Mockito.anyString()))
-//                .thenReturn(List.of(
-//                        testUtils.createRandomAccount(),
-//                        testUtils.createRandomAccount(),
-//                        testUtils.createRandomAccount()
-//                        ));
-//
-//        accountRepository.deleteAll();
-//    }
-//
-//    @AfterEach
-//    public void afterEach() {
-//        accountRepository.deleteAll();
-//    }
+
+    @BeforeEach
+    public void beforeEach() throws IOException {
+        accountRepository.deleteAll();
+    }
+
+    @AfterEach
+    public void afterEach() {
+        accountRepository.deleteAll();
+    }
 
     @Test
     public void findAllAccounts() throws Exception {
@@ -96,7 +68,7 @@ public class AccountTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        List<Account> accountList = new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<>() {
+        List<Account> accountList = new ObjectMapper().registerModule(new JavaTimeModule()).readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<>() {
         });
         assertEquals(3, accountList.size());
 
@@ -121,7 +93,7 @@ public class AccountTest {
                 .andReturn();
 
 
-        Account account = new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), Account.class);
+        Account account = new ObjectMapper().registerModule(new JavaTimeModule()).readValue(mvcResult.getResponse().getContentAsString(), Account.class);
 
         assertEquals("myFullName", account.getFullName());
         assertEquals("userName", account.getUserName());
@@ -175,7 +147,7 @@ public class AccountTest {
                 .andReturn();
 
 
-        Account resAccount = new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), Account.class);
+        Account resAccount = new ObjectMapper().registerModule(new JavaTimeModule()).readValue(mvcResult.getResponse().getContentAsString(), Account.class);
 
         assertEquals(account.getId(), resAccount.getId());
 
@@ -212,7 +184,7 @@ public class AccountTest {
                                 .param("aboutMe","aboutMe")
                                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
-        Account resAccount = new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), Account.class);
+        Account resAccount = new ObjectMapper().registerModule(new JavaTimeModule()).readValue(mvcResult.getResponse().getContentAsString(), Account.class);
 
         assertEquals(account.getId(),resAccount.getId());
         assertEquals("updateName",resAccount.getFullName());
@@ -224,22 +196,8 @@ public class AccountTest {
 
 
 
-    @Test
-    public void ts(){
-
-        Token token = new Token();
-        token.setCode("123");
-        token.setAccountEmail("asdasd");
-        token.setType("asdasd");
-        tokenRepository.deleteAll();
-        Token savedToken = tokenRepository.saveAndFlush(token);
-        System.out.println(savedToken.getCreatedDate().getEpochSecond());
-        System.out.println(new Date().toInstant().getEpochSecond());
-
-
-
-
-    }
+//    @Test
+//    public void ts(){}
 
 
 

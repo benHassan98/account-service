@@ -19,8 +19,8 @@ public class STOMPConfig implements WebSocketMessageBrokerConfigurer {
     private String userName;
     @Value("${spring.rabbitmq.password}")
     private String password;
-    @Value("${app.url}")
-    private String appUrl;
+    @Value("${gatewayService.url}")
+    private String gatewayUrl;
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config
@@ -35,7 +35,7 @@ public class STOMPConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/account/websocket").setAllowedOriginPatterns(appUrl).withSockJS();
+        registry.addEndpoint("/account/websocket").setAllowedOrigins(gatewayUrl).withSockJS();
     }
 
 }

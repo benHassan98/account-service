@@ -1,7 +1,5 @@
 package com.odinbook.accountservice.service;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import com.odinbook.accountservice.record.NotifyAccountsRecord;
 import com.odinbook.accountservice.repository.AccountRepository;
 import com.odinbook.accountservice.model.Account;
@@ -30,19 +28,13 @@ public class AccountServiceImpl implements AccountService{
     @PersistenceContext
     private EntityManager entityManager;
     private final AccountRepository accountRepository;
-    private final ImageService imageService;
-    private final ElasticSearchService elasticSearchService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public AccountServiceImpl(AccountRepository accountRepository,
-                              ImageService imageService,
-                              ElasticSearchService elasticSearchService,
                               PasswordEncoder passwordEncoder
                               ) {
         this.accountRepository = accountRepository;
-        this.imageService = imageService;
-        this.elasticSearchService = elasticSearchService;
         this.passwordEncoder = passwordEncoder;
 
     }
@@ -51,16 +43,8 @@ public class AccountServiceImpl implements AccountService{
     public Account createAccount(Account account){
 
         account.setPassword(passwordEncoder.encode(account.getPassword()));
-        Account savedAccount = accountRepository.saveAndFlush(account);
 
-        try{
-            elasticSearchService.insertAccount(savedAccount);
-        }
-        catch (IOException | ElasticsearchException exception){
-            exception.printStackTrace();
-        }
-
-        return savedAccount;
+        return accountRepository.saveAndFlush(account);
     }
 
     @Override
@@ -91,25 +75,6 @@ public class AccountServiceImpl implements AccountService{
 
         return accountRepository.findById(newAccount.getId())
                 .map(oldAccount->{
-                    String blobName = Objects.isNull(newAccount.getImage())?
-                            newAccount.getPicture():
-                            newAccount.getImage().getId();
-                    try{
-                        imageService.createBlob(blobName,newAccount.getImage().getFile());
-                        newAccount.setPicture(blobName);
-                        newAccount.setImage(null);
-                    }
-                    catch (IOException exception){
-                        exception.printStackTrace();
-                    }
-
-                    try{
-                        elasticSearchService.updateAccount(newAccount);
-                    }
-                    catch (IOException | ElasticsearchException exception){
-                        exception.printStackTrace();
-                    }
-
                     newAccount.setPassword(oldAccount.getPassword());
                     return accountRepository.saveAndFlush(newAccount);
                 })

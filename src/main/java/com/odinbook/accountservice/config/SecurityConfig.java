@@ -23,25 +23,26 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Value("${app.url}")
-    private String appUrl;
+
+    @Value("${gatewayService.url}")
+    private String gatewayUrl;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                                .anyRequest().permitAll()
-//                        .requestMatchers("/create").permitAll()
-//                        .anyRequest().authenticated()
-                );
-//                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+//                                .anyRequest().permitAll()
+                        .requestMatchers("/create","/account/websocket/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
         return http.build();
     }
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(appUrl));
+        configuration.setAllowedOrigins(List.of(gatewayUrl));
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

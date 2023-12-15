@@ -1,6 +1,6 @@
 package com.odinbook.accountservice.service;
 
-import com.azure.messaging.webpubsub.WebPubSubServiceClient;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.odinbook.accountservice.model.Account;
 import com.odinbook.accountservice.record.AddFriendRecord;
