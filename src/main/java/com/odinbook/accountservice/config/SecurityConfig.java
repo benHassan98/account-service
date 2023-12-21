@@ -33,7 +33,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
 //                                .anyRequest().permitAll()
-                        .requestMatchers("/create","/account/websocket/**").permitAll()
+                        .requestMatchers(
+                                "/create",
+                                "/account/websocket/**",
+                                "/token/**",
+                                "/resetPassword"
+                        )
+                                .permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
