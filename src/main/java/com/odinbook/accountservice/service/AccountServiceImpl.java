@@ -222,7 +222,7 @@ public class AccountServiceImpl implements AccountService{
     public void verifyAccount(String email) {
 
         entityManager
-                .createNativeQuery("UPDATE accounts SET is_verified = 1 WHERE email = :email")
+                .createNativeQuery("UPDATE accounts SET is_verified = true WHERE email = :email")
                 .setParameter("email",email)
                 .executeUpdate();
 
@@ -233,7 +233,7 @@ public class AccountServiceImpl implements AccountService{
         long threeMonths = 3*365*24*60*60*1000L;
 
         return accountRepository.findAll().stream().filter(account->
-                new Date().toInstant().getEpochSecond() - account.getCreatedDate().getEpochSecond() <= threeMonths
+                new Date().toInstant().getEpochSecond() - account.getCreatedDate().getTime() <= threeMonths
                         && !account.getUserName().equals("ExampleUser")
         ).map(Account::getId).toList();
 
@@ -264,7 +264,7 @@ public class AccountServiceImpl implements AccountService{
     @Override
     public List<Account> searchAccountsByUserNameOrEmail(String searchText){
 
-        return accountRepository.searchAccountsByUserNameOrEmail(searchText);
+        return accountRepository.searchAccountsByUserNameOrEmail("%"+searchText+"%");
 
     }
 

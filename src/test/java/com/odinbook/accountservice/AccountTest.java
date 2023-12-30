@@ -68,7 +68,7 @@ public class AccountTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        List<Account> accountList = new ObjectMapper().registerModule(new JavaTimeModule()).readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<>() {
+        List<Account> accountList = new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), new TypeReference<>() {
         });
         assertEquals(3, accountList.size());
 
@@ -93,7 +93,7 @@ public class AccountTest {
                 .andReturn();
 
 
-        Account account = new ObjectMapper().registerModule(new JavaTimeModule()).readValue(mvcResult.getResponse().getContentAsString(), Account.class);
+        Account account = new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), Account.class);
 
         assertEquals("myFullName", account.getFullName());
         assertEquals("userName", account.getUserName());
@@ -147,7 +147,7 @@ public class AccountTest {
                 .andReturn();
 
 
-        Account resAccount = new ObjectMapper().registerModule(new JavaTimeModule()).readValue(mvcResult.getResponse().getContentAsString(), Account.class);
+        Account resAccount = new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), Account.class);
 
         assertEquals(account.getId(), resAccount.getId());
 
@@ -184,12 +184,12 @@ public class AccountTest {
                                 .param("aboutMe","aboutMe")
                                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
-        Account resAccount = new ObjectMapper().registerModule(new JavaTimeModule()).readValue(mvcResult.getResponse().getContentAsString(), Account.class);
+        Account resAccount = new ObjectMapper().readValue(mvcResult.getResponse().getContentAsString(), Account.class);
 
         assertEquals(account.getId(),resAccount.getId());
         assertEquals("updateName",resAccount.getFullName());
         assertEquals("updateUser",resAccount.getUserName());
-        assertEquals("picture",resAccount.getPicture());
+        assertEquals("default",resAccount.getPicture());
 
     }
 

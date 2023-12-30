@@ -56,7 +56,7 @@ public class TokenServiceImpl implements TokenService{
         Token token = tokenRepository.findTokenByCode(code);
         if(
                 Objects.isNull(token) ||
-                new Date().toInstant().getEpochSecond()-token.getCreatedDate().getEpochSecond() > twentyMins
+                new Date().toInstant().getEpochSecond()-token.getCreatedDate().getTime() > twentyMins
         ){
             return null;
         }

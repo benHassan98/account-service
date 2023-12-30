@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<Account,Long> {
     public Optional<Account> findByEmail(String email);
     public List<Account> findByUserName(String userName);
-    @Query(value = "SELECT * FROM accounts WHERE MATCH (username, email) AGAINST (:searchText)", nativeQuery = true)
+    @Query(value = "SELECT * FROM accounts WHERE username LIKE :searchText or email LIKE :searchText", nativeQuery = true)
     public List<Account> searchAccountsByUserNameOrEmail(@Param("searchText") String searchText);
 
 }

@@ -34,7 +34,7 @@ public class TestUtils {
         account.setEmail(getSaltString()+"@gmail.com");
         account.setPassword(passwordEncoder.encode("password"));
         account.setAboutMe(getSaltString());
-        account.setPicture("picture");
+        account.setPicture("default");
 
 
         return accountRepository.saveAndFlush(account);

@@ -3,6 +3,7 @@ package com.odinbook.accountservice.model;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Date;
 
@@ -21,7 +22,7 @@ public class Token {
     private String code;
     @Column(name = "created_date")
     @CreationTimestamp
-    private Instant createdDate;
+    private Timestamp createdDate;
 
     public Long getId() {
         return id;
@@ -55,11 +56,11 @@ public class Token {
         this.code = code;
     }
 
-    public Instant getCreatedDate() {
+    public Timestamp getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(Instant createdDate) {
+    public void setCreatedDate(Timestamp createdDate) {
         this.createdDate = createdDate;
     }
 
