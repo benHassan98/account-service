@@ -1,17 +1,38 @@
 package com.odinbook.accountservice.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.fasterxml.jackson.databind.util.JSONWrappedObject;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
+import com.nimbusds.jose.shaded.gson.JsonObject;
+import com.nimbusds.jose.util.JSONArrayUtils;
+import com.nimbusds.jose.util.JSONObjectUtils;
+import com.nimbusds.jose.util.JSONStringUtils;
+import com.odinbook.accountservice.record.AddFriendRecord;
+import com.odinbook.accountservice.record.NotifyAccountsRecord;
 import com.odinbook.accountservice.record.TokenRecord;
 import com.odinbook.accountservice.service.AccountService;
 import com.odinbook.accountservice.validation.AccountForm;
 import com.odinbook.accountservice.model.Account;
 import jakarta.validation.Valid;
+import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -90,7 +111,6 @@ public class AccountController {
 
         return ResponseEntity.ok(accountService.updateAccount(account));
     }
-
     @PostMapping("/verify")
     public ResponseEntity<?> verifyAccount(@RequestBody TokenRecord tokenRecord){
         accountService.verifyAccount(tokenRecord.email());
@@ -112,5 +132,8 @@ public class AccountController {
     public ResponseEntity<?> noSuchElementExceptionHandler(){
         return ResponseEntity.notFound().build();
     }
-
+    @ExceptionHandler(value = JsonProcessingException.class)
+    public ResponseEntity<?> jsonProcessingExceptionHandler(){
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY.value()).build();
+    }
 }

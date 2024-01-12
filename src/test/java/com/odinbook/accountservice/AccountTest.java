@@ -46,7 +46,7 @@ public class AccountTest {
 
 
     @BeforeEach
-    public void beforeEach() throws IOException {
+    public void beforeEach(){
         accountRepository.deleteAll();
     }
 

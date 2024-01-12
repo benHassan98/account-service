@@ -1,5 +1,8 @@
 package com.odinbook.accountservice.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odinbook.accountservice.record.NotifyAccountsRecord;
 import com.odinbook.accountservice.repository.AccountRepository;
 import com.odinbook.accountservice.model.Account;
@@ -12,14 +15,14 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+
 import java.util.*;
 
 @Service
@@ -29,13 +32,16 @@ public class AccountServiceImpl implements AccountService{
     private EntityManager entityManager;
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
+    private final StringRedisTemplate stringRedisTemplate;
 
     @Autowired
     public AccountServiceImpl(AccountRepository accountRepository,
-                              PasswordEncoder passwordEncoder
+                              PasswordEncoder passwordEncoder,
+                              StringRedisTemplate stringRedisTemplate
                               ) {
         this.accountRepository = accountRepository;
         this.passwordEncoder = passwordEncoder;
+        this.stringRedisTemplate = stringRedisTemplate;
 
     }
 
@@ -85,9 +91,20 @@ public class AccountServiceImpl implements AccountService{
 
 
     @Override
-    @ServiceActivator(inputChannel = "addFriendRequest")
     @Transactional
-    public void addFriend(@Payload AddFriendRecord addFriendRecord) {
+    public void addFriend(String addFriendRecordJson) {
+
+        AddFriendRecord addFriendRecord;
+
+        try{
+            addFriendRecord = new ObjectMapper()
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .readValue(addFriendRecordJson, AddFriendRecord.class);
+        }
+        catch (JsonProcessingException exception){
+            exception.printStackTrace();
+            return;
+        }
 
         Account addingAccount,
                 addedAccount;
@@ -180,24 +197,49 @@ public class AccountServiceImpl implements AccountService{
 
 
     @Override
-    @ServiceActivator(inputChannel = "findNotifiedAccountsRequest", outputChannel = "toRabbit")
     @Transactional
-    public NotifyAccountsRecord findNotifiedAccountsFromPost(Message<NotifyAccountsRecord> message) {
-        System.out.println(message);
-        NotifyAccountsRecord notifyAccountsMessage = message.getPayload();
+    public void findNotifiedAccountsFromPost(String notifyAccountsJson) {
 
-        List<Long>notifiedList = findNotifiedAccountsToNewPost(notifyAccountsMessage);
+        NotifyAccountsRecord notifyAccountsRecord;
 
-        return new NotifyAccountsRecord(
-                notifyAccountsMessage.id(),
-                notifyAccountsMessage.accountId(),
-                notifyAccountsMessage.postId(),
-                notifyAccountsMessage.isShared(),
-                notifyAccountsMessage.isVisibleToFollowers(),
-                notifyAccountsMessage.friendsVisibilityType(),
-                notifyAccountsMessage.visibleToFriendList(),
+        try{
+            notifyAccountsRecord = new ObjectMapper()
+                    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                    .readValue(notifyAccountsJson, NotifyAccountsRecord.class);
+        }
+        catch (JsonProcessingException exception){
+            exception.printStackTrace();
+            return;
+        }
+
+
+
+        List<Long> notifiedList = findNotifiedAccountsToNewPost(notifyAccountsRecord);
+
+        NotifyAccountsRecord notifiedAccountsRecord = new NotifyAccountsRecord(
+                notifyAccountsRecord.id(),
+                notifyAccountsRecord.accountId(),
+                notifyAccountsRecord.postId(),
+                notifyAccountsRecord.isShared(),
+                notifyAccountsRecord.isVisibleToFollowers(),
+                notifyAccountsRecord.friendsVisibilityType(),
+                notifyAccountsRecord.visibleToFriendList(),
                 notifiedList
         );
+
+        String notifiedAccountsRecordJson;
+
+        try{
+            notifiedAccountsRecordJson = new ObjectMapper().writeValueAsString(notifiedAccountsRecord);
+        }
+        catch (JsonProcessingException exception){
+            exception.printStackTrace();
+            return;
+        }
+
+        stringRedisTemplate.convertAndSend("newPostChannel", notifiedAccountsRecordJson);
+
+
     }
 
     @Override

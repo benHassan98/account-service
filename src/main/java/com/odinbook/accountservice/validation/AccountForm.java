@@ -11,10 +11,10 @@ public class AccountForm {
 
     private Long id;
     @NotEmpty
-    @Size(min = 6,max = 40)
+    @Size(min = 3,max = 40)
     private String fullName;
     @NotEmpty
-    @Size(min = 6,max = 40)
+    @Size(min = 3,max = 40)
     private String userName;
     @NotEmpty
     @Email

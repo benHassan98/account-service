@@ -20,10 +20,10 @@ public interface AccountService {
     public Account findAccountByEmail(String email) throws NoSuchElementException;
     public List<Account> findAccountByUserName(String userName);
     public Account updateAccount(Account newAccount) throws NoSuchElementException;
-    public void addFriend(AddFriendRecord addFriendRecord);
+    public void addFriend(String addFriendRecordJson);
     public void removeFriend(Long removingId, Long removedId);
     public List<Long> findNotifiedAccountsToNewPost(NotifyAccountsRecord notifyAccountsRecord);
-    public NotifyAccountsRecord findNotifiedAccountsFromPost(Message<NotifyAccountsRecord> message);
+    public void findNotifiedAccountsFromPost(String notifyAccountsJson);
     public Boolean isEmailUnique(String email);
     public void resetPassword(String newPassword, String email);
     public void verifyAccount(String email);

@@ -1,6 +1,8 @@
 package com.odinbook.accountservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.odinbook.accountservice.model.Account;
+import com.odinbook.accountservice.record.SearchTextRecord;
 import com.odinbook.accountservice.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -23,13 +25,16 @@ public class STOMPController {
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
-    @MessageMapping("accountSearch/{accountId}")
+    @MessageMapping("/accountSearch/{accountId}")
     public void searchAccountsByUserNameOrEmail(@DestinationVariable("accountId") Long accountId,
-                                                 @Payload String searchText){
+                                                 @Payload SearchTextRecord searchTextRecord){
 
 
         List<Long> accountList = accountService
-                .searchAccountsByUserNameOrEmail(searchText).stream().map(Account::getId).toList();
+                .searchAccountsByUserNameOrEmail(searchTextRecord.searchText())
+                .stream()
+                .map(Account::getId)
+                .toList();
 
         simpMessagingTemplate.convertAndSend(
                 "/exchange/accountSearch/"+accountId,
