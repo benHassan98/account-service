@@ -276,7 +276,6 @@ public class AccountServiceImpl implements AccountService{
 
         return accountRepository.findAll().stream().filter(account->
                 new Date().toInstant().getEpochSecond() - account.getCreatedDate().getTime() <= threeMonths
-                        && !account.getUserName().equals("ExampleUser")
         ).map(Account::getId).toList();
 
     }
