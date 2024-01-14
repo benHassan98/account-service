@@ -17,16 +17,6 @@ import java.util.Map;
 @Configuration
 public class RedisConfig {
 
-    @Value("${spring.data.redis.host}")
-    private String host;
-    @Value("${spring.data.redis.port}")
-    private int port;
-
-    @Bean
-    RedisConnectionFactory connectionFactory(){
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
-    }
-
     @Bean
     RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
                                             Map<String, MessageListenerAdapter> listenerAdapterMap) {
