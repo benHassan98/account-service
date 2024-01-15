@@ -14,9 +14,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class STOMPConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Value("${app.url}")
-    private String appUrl;
-
     private TaskScheduler messageBrokerTaskScheduler;
 
     @Autowired
@@ -35,7 +32,7 @@ public class STOMPConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/websocket").setAllowedOrigins(appUrl).withSockJS();
+        registry.addEndpoint("/websocket").setAllowedOriginPatterns("*").withSockJS();
     }
 
 }
