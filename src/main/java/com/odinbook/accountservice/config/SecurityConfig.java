@@ -35,7 +35,8 @@ public class SecurityConfig {
                                  "/create",
                                  "/websocket/**",
                                  "/token/**",
-                                 "/resetPassword"
+                                 "/resetPassword",
+                                 "/actuator/**"
                          )
                                  .permitAll()
                          .anyRequest().authenticated()
