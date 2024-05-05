@@ -275,6 +275,7 @@ public class AccountServiceImpl implements AccountService{
         long threeMonths = 3*365*24*60*60*1000L;
 
         return accountRepository.findAll().stream().filter(account->
+                !"example@gmail.com".equals(account.getEmail()) &&
                 new Date().toInstant().getEpochSecond() - account.getCreatedDate().getTime() <= threeMonths
         ).map(Account::getId).toList();
 
