@@ -17,33 +17,30 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/token")
 public class TokenController {
-    private final TokenService tokenService;
+  private final TokenService tokenService;
 
-    @Autowired
-    public TokenController(TokenService tokenService) {
-        this.tokenService = tokenService;
+  @Autowired
+  public TokenController(TokenService tokenService) {
+    this.tokenService = tokenService;
+  }
+
+  @PostMapping()
+  public ResponseEntity<?> createToken(@RequestBody Token token) {
+
+    try {
+      Token createdToken = tokenService.createToken(token);
+      return Objects.isNull(createdToken) ? ResponseEntity.badRequest().build() : ResponseEntity.ok().build();
+    } catch (MessagingException exception) {
+
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).build();
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createToken(@RequestBody Token token){
+  }
 
-        try{
-            Token createdToken = tokenService.createToken(token);
-            return Objects.isNull(createdToken)?
-                    ResponseEntity.badRequest().build():ResponseEntity.ok().build();
-        }
-        catch (MessagingException exception){
+  @PostMapping("/verify")
+  public ResponseEntity<?> verifyToken(@RequestBody TokenRecord tokenRecord) {
 
-            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).build();
-        }
-
-    }
-
-    @PostMapping("/verify")
-    public ResponseEntity<?> verifyToken(@RequestBody TokenRecord tokenRecord){
-
-        Token token = tokenService.verifyToken(tokenRecord.code());
-        return Objects.isNull(token)?
-                ResponseEntity.badRequest().build():ResponseEntity.ok(token);
-    }
+    Token token = tokenService.verifyToken(tokenRecord.code());
+    return Objects.isNull(token) ? ResponseEntity.badRequest().build() : ResponseEntity.ok(token);
+  }
 }

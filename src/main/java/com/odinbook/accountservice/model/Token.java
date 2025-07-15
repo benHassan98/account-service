@@ -1,67 +1,71 @@
 package com.odinbook.accountservice.model;
 
-import jakarta.persistence.*;
+import java.sql.Timestamp;
+
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.Date;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tokens")
 public class Token {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(name = "type")
-    private String type;
-    @Column(name = "account_email")
-    private String accountEmail;
-    @Column(name = "code")
-    private String code;
-    @Column(name = "created_date")
-    @CreationTimestamp
-    private Timestamp createdDate;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+  @Column(name = "type")
+  private String type;
+  @Column(name = "email")
+  private String email;
+  @Column(name = "code")
+  private String code;
+  @Column(name = "created_date")
+  @CreationTimestamp
+  private Timestamp createdDate;
 
-    public Long getId() {
-        return id;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-    public String getType() {
-        return type;
-    }
+  public String getType() {
+    return type;
+  }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+  public void setType(String type) {
+    this.type = type;
+  }
 
-    public String getAccountEmail() {
-        return accountEmail;
-    }
+  public String getCode() {
+    return code;
+  }
 
-    public void setAccountEmail(String accountEmail) {
-        this.accountEmail = accountEmail;
-    }
+  public void setCode(String code) {
+    this.code = code;
+  }
 
-    public String getCode() {
-        return code;
-    }
+  public Timestamp getCreatedDate() {
+    return createdDate;
+  }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+  public void setCreatedDate(Timestamp createdDate) {
+    this.createdDate = createdDate;
+  }
 
-    public Timestamp getCreatedDate() {
-        return createdDate;
-    }
+  public String getEmail() {
+    return email;
+  }
 
-    public void setCreatedDate(Timestamp createdDate) {
-        this.createdDate = createdDate;
-    }
+  public void setEmail(String email) {
+    this.email = email;
+  }
 
 }
