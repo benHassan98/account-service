@@ -5,6 +5,7 @@ import jakarta.mail.MessagingException;
 
 public interface TokenService {
 
-    public Token createToken(Token token) throws MessagingException;
-    public Token verifyToken(String code);
+  public Token create(Token token) throws MessagingException;
+
+  public Token verify(String code);
 }

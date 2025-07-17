@@ -28,7 +28,7 @@ public class TokenController {
   public ResponseEntity<?> createToken(@RequestBody Token token) {
 
     try {
-      Token createdToken = tokenService.createToken(token);
+      Token createdToken = tokenService.create(token);
       return Objects.isNull(createdToken) ? ResponseEntity.badRequest().build() : ResponseEntity.ok().build();
     } catch (MessagingException exception) {
 
@@ -38,9 +38,9 @@ public class TokenController {
   }
 
   @PostMapping("/verify")
-  public ResponseEntity<?> verifyToken(@RequestBody TokenRecord tokenRecord) {
+  public ResponseEntity<?> verify(@RequestBody TokenRecord tokenRecord) {
 
-    Token token = tokenService.verifyToken(tokenRecord.code());
+    Token token = tokenService.verify(tokenRecord.code());
     return Objects.isNull(token) ? ResponseEntity.badRequest().build() : ResponseEntity.ok(token);
   }
 }

@@ -41,7 +41,7 @@ public class AccountController {
     if (bindingResult.hasErrors()) {
       return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
     }
-    return ResponseEntity.ok(accountService.createAccount(accountForm.getAccount()));
+    return ResponseEntity.ok(accountService.create(accountForm.getAccount()));
 
   }
 
@@ -58,15 +58,7 @@ public class AccountController {
   @GetMapping("/{id}")
   public ResponseEntity<?> findById(@PathVariable Long id) throws NoSuchElementException {
 
-    return ResponseEntity.ok(accountService.findAccountById(id));
-  }
-
-  @PostMapping("/unFriend")
-  public void unFriend(@RequestBody Map<String, Long> params) {
-    Long removingId = params.get("removingId");
-    Long removedId = params.get("removedId");
-    accountService.removeFriend(removingId, removedId);
-
+    return ResponseEntity.ok(accountService.findById(id));
   }
 
   @PostMapping("/follow")
@@ -87,24 +79,24 @@ public class AccountController {
 
   @GetMapping("/email/{email}")
   public ResponseEntity<?> findByEmail(@PathVariable String email) throws NoSuchElementException {
-    return ResponseEntity.ok(accountService.findAccountByEmail(email));
+    return ResponseEntity.ok(accountService.findByEmail(email));
 
   }
 
   @GetMapping("/userName/{userName}")
   public List<Account> findByUserName(@PathVariable String userName) {
-    return accountService.findAccountByUserName(userName);
+    return accountService.findByUserName(userName);
   }
 
   @PutMapping()
   public ResponseEntity<?> updateAccount(@ModelAttribute Account account) throws NoSuchElementException {
 
-    return ResponseEntity.ok(accountService.updateAccount(account));
+    return ResponseEntity.ok(accountService.update(account));
   }
 
   @PostMapping("/verify")
   public ResponseEntity<?> verifyAccount(@RequestBody TokenRecord tokenRecord) {
-    accountService.verifyAccount(tokenRecord.email());
+    accountService.verify(tokenRecord.email());
     return ResponseEntity.ok().build();
   }
 

@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TokenRepository extends JpaRepository<Token, Long> {
 
-    public Token findTokenByCode(String code);
+  public Token findTokenByCode(String code);
 
 }

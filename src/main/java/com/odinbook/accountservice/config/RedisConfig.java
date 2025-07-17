@@ -22,21 +22,14 @@ public class RedisConfig {
     RedisMessageListenerContainer container = new RedisMessageListenerContainer();
     container.setConnectionFactory(connectionFactory);
 
-    container.addMessageListener(listenerAdapterMap.get("findNotifiedAccounts"),
-        new PatternTopic("findNotifiedAccountsChannel"));
-    container.addMessageListener(listenerAdapterMap.get("addFriend"), new PatternTopic("addFriendChannel"));
+    container.addMessageListener(listenerAdapterMap.get("addFollower"), new PatternTopic("addFollowerChannel"));
 
     return container;
   }
 
-  @Bean("findNotifiedAccounts")
-  MessageListenerAdapter findNotifiedAccountsListenerAdapter(AccountServiceImpl accountService) {
-    return new MessageListenerAdapter(accountService, "findNotifiedAccountsFromPost");
-  }
-
-  @Bean("addFriend")
-  MessageListenerAdapter addFriendListenerAdapter(AccountServiceImpl accountService) {
-    return new MessageListenerAdapter(accountService, "addFriend");
+  @Bean("addFollower")
+  MessageListenerAdapter addFollowerListenerAdapter(AccountServiceImpl accountService) {
+    return new MessageListenerAdapter(accountService, "addFollower");
   }
 
   @Bean

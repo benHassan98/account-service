@@ -8,10 +8,12 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface AccountRepository extends JpaRepository<Account,Long> {
-    public Optional<Account> findByEmail(String email);
-    public List<Account> findByUserName(String userName);
-    @Query(value = "SELECT * FROM accounts WHERE username LIKE :searchText or email LIKE :searchText", nativeQuery = true)
-    public List<Account> searchAccountsByUserNameOrEmail(@Param("searchText") String searchText);
+public interface AccountRepository extends JpaRepository<Account, Long> {
+  public Optional<Account> findByEmail(String email);
+
+  public List<Account> findByUserName(String userName);
+
+  @Query(value = "SELECT * FROM accounts WHERE username LIKE :searchText or email LIKE :searchText", nativeQuery = true)
+  public List<Account> searchAccountsByUserNameOrEmail(@Param("searchText") String searchText);
 
 }
