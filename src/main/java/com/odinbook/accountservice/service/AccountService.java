@@ -18,7 +18,7 @@ public interface AccountService {
 
   public Account update(Account newAccount) throws NoSuchElementException;
 
-  public void addFriend(String addFriendRecordJson);
+  public void addFriend(Long addingId, Long addedId);
 
   public void removeFriend(Long removingId, Long removedId);
 
