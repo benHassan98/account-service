@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.odinbook.accountservice.model.Account;
@@ -35,13 +37,13 @@ public class AccountController {
   }
 
   @PostMapping()
-  public ResponseEntity<?> createAccount(@Valid @ModelAttribute AccountForm accountForm,
-      BindingResult bindingResult) {
+  public ResponseEntity<?> createAccount(@Valid @ModelAttribute("accountForm") AccountForm accountForm,
+      BindingResult bindingResult, @RequestPart("picture") MultipartFile picture) {
 
     if (bindingResult.hasErrors()) {
       return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
     }
-    return ResponseEntity.ok(accountService.create(accountForm.getAccount()));
+    return ResponseEntity.ok(accountService.create(accountForm.getAccount(), picture));
 
   }
 

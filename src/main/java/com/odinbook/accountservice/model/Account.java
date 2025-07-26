@@ -32,8 +32,8 @@ public class Account {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(name = "picture_url", nullable = false)
-  private String pictureUrl;
+  @Column(name = "picture_id", nullable = false)
+  private String pictureId;
 
   @Column(name = "fullname", nullable = false)
   private String fullName;
@@ -120,14 +120,6 @@ public class Account {
     this.id = id;
   }
 
-  public String getPicture() {
-    return pictureUrl;
-  }
-
-  public void setPicture(String pictureUrl) {
-    this.pictureUrl = pictureUrl;
-  }
-
   public String getFullName() {
     return fullName;
   }
@@ -182,6 +174,26 @@ public class Account {
 
   public List<Account> getFolloweeList() {
     return List.copyOf(followeeList);
+  }
+
+  public Boolean getIsVerified() {
+    return isVerified;
+  }
+
+  public void setIsVerified(Boolean isVerified) {
+    this.isVerified = isVerified;
+  }
+
+  public void setCreatedDate(Timestamp createdDate) {
+    this.createdDate = createdDate;
+  }
+
+  public String getPictureId() {
+    return pictureId;
+  }
+
+  public void setPictureId(String pictureId) {
+    this.pictureId = pictureId;
   }
 
 }

@@ -1,5 +1,6 @@
 package com.odinbook.accountservice.service;
 
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -8,11 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.odinbook.accountservice.model.Account;
 import com.odinbook.accountservice.record.AddFollowerRecord;
 import com.odinbook.accountservice.repository.AccountRepository;
 
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -25,21 +29,31 @@ public class AccountServiceImpl implements AccountService {
   private final AccountRepository accountRepository;
   private final PasswordEncoder passwordEncoder;
   private final StringRedisTemplate stringRedisTemplate;
+  private final MinioClient minioClient;
 
   @Autowired
   public AccountServiceImpl(AccountRepository accountRepository,
-      PasswordEncoder passwordEncoder, StringRedisTemplate stringRedisTemplate) {
+      PasswordEncoder passwordEncoder, StringRedisTemplate stringRedisTemplate,
+      MinioClient minioClient) {
     this.accountRepository = accountRepository;
     this.passwordEncoder = passwordEncoder;
     this.stringRedisTemplate = stringRedisTemplate;
+    this.minioClient = minioClient;
   }
 
   @Override
-  public Account create(Account account) {
+  public void create(Account account, MultipartFile picture) throws Exception {
 
+    account.setPictureId(passwordEncoder.encode(account.getEmail() + "-" + new Date().toString()));
     account.setPassword(passwordEncoder.encode(account.getPassword()));
 
-    return accountRepository.saveAndFlush(account);
+    this.minioClient.putObject(PutObjectArgs.builder()
+        .bucket("pictures")
+        .object(account.getPictureId())
+        .stream(picture.getInputStream(), picture.getSize(), -1)
+        .build());
+
+    accountRepository.saveAndFlush(account);
   }
 
   @Override

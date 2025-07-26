@@ -3,10 +3,12 @@ package com.odinbook.accountservice.service;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.odinbook.accountservice.model.Account;
 
 public interface AccountService {
-  public Account create(Account account);
+  public void create(Account account, MultipartFile picture) throws Exception;
 
   public List<Account> findAll();
 
