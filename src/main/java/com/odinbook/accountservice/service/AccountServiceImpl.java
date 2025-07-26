@@ -1,11 +1,11 @@
 package com.odinbook.accountservice.service;
 
-import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +30,8 @@ public class AccountServiceImpl implements AccountService {
   private final PasswordEncoder passwordEncoder;
   private final StringRedisTemplate stringRedisTemplate;
   private final MinioClient minioClient;
+  @Value("${minio.bucket}")
+  private String BUCKET;
 
   @Autowired
   public AccountServiceImpl(AccountRepository accountRepository,
@@ -48,7 +50,7 @@ public class AccountServiceImpl implements AccountService {
     account.setPassword(passwordEncoder.encode(account.getPassword()));
 
     this.minioClient.putObject(PutObjectArgs.builder()
-        .bucket("pictures")
+        .bucket(BUCKET)
         .object(account.getPictureId())
         .stream(picture.getInputStream(), picture.getSize(), -1)
         .build());

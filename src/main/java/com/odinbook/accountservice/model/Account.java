@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,7 +22,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
+@EntityListeners(AccountListener.class)
 @Entity
 @Table(name = "accounts")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -35,9 +38,12 @@ public class Account {
   @Column(name = "picture_id", nullable = false)
   private String pictureId;
 
+  @Transient
+  private byte[] pictureBytes;
+
   @Column(name = "fullname", nullable = false)
   private String fullName;
-  @Column(name = "username", nullable = false)
+  @Column(name = "username", nullable = false, unique = true)
   private String userName;
   @Column(name = "email", nullable = false, unique = true)
   private String email;
@@ -196,4 +202,11 @@ public class Account {
     this.pictureId = pictureId;
   }
 
+  public byte[] getPictureBytes() {
+    return pictureBytes;
+  }
+
+  public void setPictureBytes(byte[] pictureBytes) {
+    this.pictureBytes = pictureBytes;
+  }
 }

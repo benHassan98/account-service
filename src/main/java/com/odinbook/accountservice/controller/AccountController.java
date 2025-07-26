@@ -37,13 +37,19 @@ public class AccountController {
   }
 
   @PostMapping()
-  public ResponseEntity<?> createAccount(@Valid @ModelAttribute("accountForm") AccountForm accountForm,
+  public ResponseEntity<?> createAccount(@Valid @ModelAttribute("account") AccountForm accountForm,
       BindingResult bindingResult, @RequestPart("picture") MultipartFile picture) {
 
     if (bindingResult.hasErrors()) {
       return ResponseEntity.badRequest().body(bindingResult.getAllErrors());
     }
-    return ResponseEntity.ok(accountService.create(accountForm.getAccount(), picture));
+    try {
+      accountService.create(accountForm.getAccount(), picture);
+    } catch (Exception exception) {
+      exception.printStackTrace();
+      ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).build();
+    }
+    return ResponseEntity.ok().build();
 
   }
 
@@ -122,4 +128,5 @@ public class AccountController {
   public ResponseEntity<?> jsonProcessingExceptionHandler() {
     return ResponseEntity.status(HttpStatus.BAD_GATEWAY.value()).build();
   }
+
 }
